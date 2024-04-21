@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('--imgW', type=int, default=520, help='the width of the input image to network')
 
     parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
-    parser.add_argument('--nepoch', type=int, default=100, help='number of epochs to train for')
+    parser.add_argument('--nepoch', type=int, default=2, help='number of epochs to train for')
     # parser.add_argument('--cuda', action='store_true', help='enables cuda')
     parser.add_argument('--manualSeed', type=int, default=1234, help='reproduce experiemnt')
 
@@ -28,9 +28,9 @@ if __name__ == '__main__':
     parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate for Critic, not used by adadealta')
 
-    parser.add_argument('--valInterval', type=int, default=1, help='Interval to be displayed')
-    parser.add_argument('--saveInterval', type=int, default=1, help='Interval to be displayed')
-    parser.add_argument('--', type=int, default=1, help='Interval to be displayed')
+    parser.add_argument('--valInterval', type=int, default=5, help='Interval to be displayed')
+    parser.add_argument('--saveInterval', type=int, default=5, help='Interval to be displayed')
+    # parser.add_argument('--', type=int, default=1, help='Interval to be displayed')
 
     # parser.add_argument('--train', required=True, help='path to dataset')
     # parser.add_argument('--val', required=True, help='path to dataset')
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # --------------Tạo Dataset -------------------------------------------------------
     dataset = DatasetImg(opt.imgFolder, opt.labelFolder, opt.imgW, opt.imgH)
-    train_dataset, test_dataset = random_split(dataset, [8, 2])
+    train_dataset, test_dataset = random_split(dataset, [0.8, 0.2])
 
     train_dataloader = torch.utils.data.DataLoader(
                 train_dataset,
@@ -65,7 +65,9 @@ if __name__ == '__main__':
                 batch_size=opt.batch_size,
                 shuffle=True)
 
-    alphabet = open(os.path.join(opt.alphabet)).read().rstrip()
+    with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
+        alphabet = f.read().rstrip()
+    print(alphabet)
     converter = strLabelConverter(alphabet, ignore_case=True)
 
     # --------------------- Create Model ---------------------------------
@@ -74,7 +76,7 @@ if __name__ == '__main__':
     # for name, param in model.named_parameters():
     #     print(f"Layer: {name} | Size: {param.size()} | Values : {param[:2]} \n")
 
-    criterion = torch.nnCTCLoss().to(device)
+    criterion = torch.nn.CTCLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
 
     trainer = Trainer(model, criterion, optimizer,train_dataloader, converter)

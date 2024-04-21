@@ -1,6 +1,4 @@
 import torch
-from tester import Tester
-from utils.utils import MetricTracker
 from tqdm import tqdm
 from utils.utils import *
 
@@ -14,10 +12,10 @@ class Trainer:
         self.converter = converter
         self.device = next(self.model.parameters()).device
 
-        self.losses = MetricTracker()
-        self.accs = MetricTracker()
+        # self.losses = MetricTracker()
+        # self.accs = MetricTracker()
 
-        self.tester = Tester(self.config, self.model)
+        # self.tester = Tester(self.config, self.model)
 
     def train(self, num_epochs, valInterval, saveInterval):
         for epoch in range(1, num_epochs + 1):
@@ -25,8 +23,8 @@ class Trainer:
             running_loss = self._train_epoch(epoch)
             print('--> Epoch: [{0}]\t Avg Loss {:.4f}\t Avg Accuracy {:.3f}'.format(epoch, running_loss, running_loss))
             
-            if epoch % valInterval == 0: 
-                self.tester.eval()
+            # if epoch % valInterval == 0: 
+            #     self.tester.eval()
 
             if epoch % saveInterval == 0:
                 print('Saving Model...')
@@ -42,10 +40,11 @@ class Trainer:
         running_loss = 0
         t = tqdm(iter(self.dataloader), total=len(self.dataloader), desc='Epoch {}'.format(epoch_idx))
         for batch_idx, (imgs, labels) in enumerate(t):
-            imgs.to(self.device)
-            targets, target_lenghts = self.converter(labels)
-            targets.to(self.device)
-            target_lenghts.to(self.device)
+            imgs = imgs.to(self.device)
+
+            targets, target_lenghts = self.converter.encode(labels)
+            targets = targets.to(self.device)
+            target_lenghts = target_lenghts.to(self.device)
 
             self.optimizer.zero_grad()
 

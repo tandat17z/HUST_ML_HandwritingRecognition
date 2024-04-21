@@ -53,7 +53,8 @@ class DatasetImg(torch.utils.data.Dataset):
         return ToTensor()(img)
     
     def target_loader(self, path):
-        label = open(path).read().rstrip('\n')
+        with open(path, 'r', encoding='utf-8') as f:
+            label = f.read().rstrip('\n')
         label = label.strip()
         return label
     
