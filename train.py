@@ -13,15 +13,14 @@ from trainer import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--imgFolder', required=True, help='path to root folder')
-    parser.add_argument('--labelFolder', required=True, help='path to root folder')
+    parser.add_argument('--data', required=True, help='path to data folder')
     parser.add_argument('--alphabet', type=str, required=True, help='path to char in labels')
-    parser.add_argument('--imgH', type=int, default=48, help='the height of the input image to network')
-    parser.add_argument('--imgW', type=int, default=520, help='the width of the input image to network')
+    parser.add_argument('--imgH', type=int, default=32, help='the height of the input image to network')
+    parser.add_argument('--imgW', type=int, default=512, help='the width of the input image to network')
 
     parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
     parser.add_argument('--nepoch', type=int, default=2, help='number of epochs to train for')
-    # parser.add_argument('--cuda', action='store_true', help='enables cuda')
+    parser.add_argument('--cuda', action='store_true', help='enables cuda')
     parser.add_argument('--manualSeed', type=int, default=1234, help='reproduce experiemnt')
 
     parser.add_argument('--num_hidden', type=int, default=100, help='size of the lstm hidden state')
@@ -46,14 +45,14 @@ if __name__ == '__main__':
     np.random.seed(opt.manualSeed)
     torch.manual_seed(opt.manualSeed)
 
-    if torch.cuda.is_available() and not opt.cuda:
+    if torch.cuda.is_available() :
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
     device = ( "cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using {device} device")
 
     # --------------Tạo Dataset -------------------------------------------------------
-    dataset = DatasetImg(opt.imgFolder, opt.labelFolder, opt.imgW, opt.imgH)
+    dataset = DatasetImg(opt.data + '/img', opt.data + '/label', opt.imgW, opt.imgH)
     train_dataset, test_dataset = random_split(dataset, [0.8, 0.2])
 
     train_dataloader = torch.utils.data.DataLoader(
@@ -79,5 +78,9 @@ if __name__ == '__main__':
     criterion = torch.nn.CTCLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
 
-    trainer = Trainer(model, criterion, optimizer,train_dataloader, converter)
+    trainer = Trainer(model, 
+                      criterion = criterion, 
+                      optimizer = optimizer,
+                      dataloader = train_dataloader, 
+                      converter = converter)
     trainer.train(opt.nepoch, opt.valInterval, opt.saveInterval)

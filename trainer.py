@@ -43,18 +43,18 @@ class Trainer:
             imgs = imgs.to(self.device)
 
             targets, target_lenghts = self.converter.encode(labels)
-            targets = targets.to(self.device)
-            target_lenghts = target_lenghts.to(self.device)
+            targets = targets.to('cpu')
+            target_lenghts = target_lenghts.to('cpu')
 
             self.optimizer.zero_grad()
 
             preds = self.model(imgs)
             
             b, l, c = preds.shape
-            preds = preds.permute(1, 0, 2)
-            preds_lengths = torch.full(size=(b), fill_value=l, dtype=torch.long).to(self.device)
+            preds = preds.permute(1, 0, 2).to('cpu')
+            preds_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
 
-            loss = self.criterion(preds, targets, preds_lengths, target_lenghts)
+            loss = self.criterion(preds, targets, preds_lengths, target_lenghts) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
             loss.backward()
             self.optimizer.step()
 
