@@ -78,7 +78,7 @@ class Trainer:
             avg_loss += loss.detach().item()
 
             _, enc_preds = preds.max(2)
-            sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = True)
+            sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             avg_levenshtein_loss += Levenshtein_loss(sim_preds, labels)
 
         return avg_loss/len(self.train_dataloader), avg_levenshtein_loss/len(self.train_dataloader)

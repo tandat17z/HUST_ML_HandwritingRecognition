@@ -42,9 +42,9 @@ class Tester:
             i = 5
             for raw_pred, pred, gt in zip(raw_preds, sim_preds, labels):
                 print('='*30)
-                print('raw: {}', raw_pred)
-                print('pred_text: {}', pred)
-                print('gt: {}', gt)
+                print(f'raw: {raw_pred}')
+                print(f'pred_text: {pred}', )
+                print(f'gt: {gt}')
                 i -= 1
                 if( i == 0): break
         return avg_loss/len(self.dataloader), avg_levenshtein_loss/len(self.dataloader)
