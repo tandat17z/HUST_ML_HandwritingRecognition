@@ -32,8 +32,8 @@ class Trainer:
     def train(self, num_epochs, valInterval, saveInterval):
         for epoch in range(1, num_epochs + 1):
             self.model.train(True)
-            # avg_loss, avg_levenshtein_loss = self._train_epoch(epoch)
-            # print('--> Epoch: [{}/{}]\t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(epoch, num_epochs, avg_loss, avg_levenshtein_loss))
+            avg_loss, avg_levenshtein_loss = self._train_epoch(epoch)
+            print('--> Epoch: [{}/{}]\t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(epoch, num_epochs, avg_loss, avg_levenshtein_loss))
             
             if epoch % valInterval == 0: 
                 avg_loss, avg_levenshtein_loss = self.tester.eval()
