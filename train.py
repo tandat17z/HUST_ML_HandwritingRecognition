@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('--imgW', type=int, default=512, help='the width of the input image to network')
 
     parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
-    parser.add_argument('--nepoch', type=int, default=2, help='number of epochs to train for')
+    parser.add_argument('--nepoch', type=int, default=100, help='number of epochs to train for')
     parser.add_argument('--cuda', action='store_true', help='enables cuda')
     parser.add_argument('--manualSeed', type=int, default=1234, help='reproduce experiemnt')
     parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
@@ -72,10 +72,10 @@ if __name__ == '__main__':
 
     epoch = 0
     if opt.pretrained:
-        checkpoint_path = opt.pretrain
-        checkpoint = torch.load(checkpoint_path)
-        model.load_state_dict(checkpoint['model'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
+        checkpoint_path = opt.pretrained
+        checkpoint = torch.load(checkpoint_path, map_location=torch.device(device))
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         epoch = checkpoint['epoch']
 
     trainer = Trainer(opt, model, 
