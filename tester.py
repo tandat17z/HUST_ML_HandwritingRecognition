@@ -34,14 +34,17 @@ class Tester:
             
                 avg_loss += loss.detach().item()
                 _, enc_preds = preds.max(2)
-                sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = True)
+                sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
                 avg_levenshtein_loss += Levenshtein_loss(sim_preds, labels)
                 
         if print_:
-            raw_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
-            i = 10
+            raw_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = True)
+            i = 5
             for raw_pred, pred, gt in zip(raw_preds, sim_preds, labels):
-                print('%-30s => %-30s, gt: %-30s' % (raw_pred, pred, gt))
+                print('='*30)
+                print('raw: {}', raw_pred)
+                print('pred_text: {}', pred)
+                print('gt: {}', gt)
                 i -= 1
                 if( i == 0): break
         return avg_loss/len(self.dataloader), avg_levenshtein_loss/len(self.dataloader)

@@ -22,6 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('--nepoch', type=int, default=2, help='number of epochs to train for')
     parser.add_argument('--cuda', action='store_true', help='enables cuda')
     parser.add_argument('--manualSeed', type=int, default=1234, help='reproduce experiemnt')
+    parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
 
     parser.add_argument('--num_hidden', type=int, default=100, help='size of the lstm hidden state')
     parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
@@ -35,7 +36,6 @@ if __name__ == '__main__':
     # parser.add_argument('--val', required=True, help='path to dataset')
     # parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
     # parser.add_argument('--gpu', type=int, default=0, help='number of GPUs to use')
-    # parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
     # parser.add_argument('--expr_dir', required=True, type=str, help='Where to store samples and models')
     # parser.add_argument('--displayInterval', type=int, default=1, help='Interval to be displayed')
     # parser.add_argument('--n_test_disp', type=int, default=10, help='Number of samples to display when test')
@@ -70,9 +70,17 @@ if __name__ == '__main__':
     criterion = torch.nn.CTCLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
 
+    epoch = 0
+    if opt.pretrained:
+        checkpoint_path = opt.pretrain
+        checkpoint = torch.load(checkpoint_path)
+        model.load_state_dict(checkpoint['model'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        epoch = checkpoint['epoch']
+
     trainer = Trainer(opt, model, 
                       criterion = criterion, 
                       optimizer = optimizer,
                       dataset = dataset,
                       converter = converter)
-    trainer.train(opt.nepoch, opt.valInterval, opt.saveInterval)
+    trainer.train(opt.nepoch, opt.valInterval, opt.saveInterval, start_epoch = epoch)

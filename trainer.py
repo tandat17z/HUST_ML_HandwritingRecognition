@@ -29,8 +29,8 @@ class Trainer:
         # self.accs = MetricTracker()
 
 
-    def train(self, num_epochs, valInterval, saveInterval):
-        for epoch in range(1, num_epochs + 1):
+    def train(self, num_epochs, valInterval, saveInterval, start_epoch = 1):
+        for epoch in range(start_epoch + 1, start_epoch + num_epochs + 1):
             self.model.train(True)
             avg_loss, avg_levenshtein_loss = self._train_epoch(epoch)
             print('--> Epoch: [{}/{}]\t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(epoch, num_epochs, avg_loss, avg_levenshtein_loss))
