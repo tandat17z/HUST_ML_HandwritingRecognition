@@ -45,8 +45,8 @@ if __name__ == '__main__':
     np.random.seed(opt.manualSeed)
     # torch.manual_seed(opt.manualSeed) # Comment lại để cho khởi tạo tham số ngẫu nhiên
 
-    if torch.cuda.is_available() :
-        print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+    # if torch.cuda.is_available() :
+    #     print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
     device = ( "cuda" if torch.cuda.is_available() else "cpu")
     print("---------------------------------------------------")

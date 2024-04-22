@@ -47,7 +47,7 @@ class Trainer:
                     'model_state_dict': self.model.state_dict(),  # Lưu trạng thái của mô hình
                     'optimizer_state_dict': self.optimizer.state_dict(),  # Lưu trạng thái của optimizer
                 }
-                torch.save(checkpoint, 'pretrain/model_{epoch}.pth.tar')
+                torch.save(checkpoint, f'pretrain/model_{epoch}.pth.tar')
 
     def _train_epoch(self, epoch_idx):
         # self.losses.reset()
