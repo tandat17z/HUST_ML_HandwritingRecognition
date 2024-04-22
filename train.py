@@ -43,44 +43,36 @@ if __name__ == '__main__':
 
     random.seed(opt.manualSeed)
     np.random.seed(opt.manualSeed)
-    torch.manual_seed(opt.manualSeed)
+    # torch.manual_seed(opt.manualSeed) # Comment lại để cho khởi tạo tham số ngẫu nhiên
 
     if torch.cuda.is_available() :
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
     device = ( "cuda" if torch.cuda.is_available() else "cpu")
+    print("---------------------------------------------------")
     print(f"Using {device} device")
+    print("---------------------------------------------------")
 
     # --------------Tạo Dataset -------------------------------------------------------
     dataset = DatasetImg(opt.data + '/img', opt.data + '/label', opt.imgW, opt.imgH)
-    train_dataset, test_dataset = random_split(dataset, [0.8, 0.2])
-
-    train_dataloader = torch.utils.data.DataLoader(
-                train_dataset,
-                batch_size=opt.batch_size,
-                shuffle=True)
-    test_dataloader = torch.utils.data.DataLoader(
-                test_dataset,
-                batch_size=opt.batch_size,
-                shuffle=True)
 
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
-    print(alphabet)
+    # print(alphabet)
     converter = strLabelConverter(alphabet, ignore_case=True)
 
     # --------------------- Create Model ---------------------------------
     model = CRNN(converter.numClass, opt.num_hidden, opt.dropout).to(device)
-    print(f"Model structure: {model}\n\n")
+    # print(f"Model structure: {model}\n\n")
     # for name, param in model.named_parameters():
     #     print(f"Layer: {name} | Size: {param.size()} | Values : {param[:2]} \n")
 
     criterion = torch.nn.CTCLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
 
-    trainer = Trainer(model, 
+    trainer = Trainer(opt, model, 
                       criterion = criterion, 
                       optimizer = optimizer,
-                      dataloader = train_dataloader, 
+                      dataset = dataset,
                       converter = converter)
     trainer.train(opt.nepoch, opt.valInterval, opt.saveInterval)

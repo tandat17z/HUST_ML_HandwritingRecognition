@@ -2,17 +2,9 @@
 # encoding: utf-8
 
 import torch
-import torch.nn as nn
-from torch.autograd import Variable
-import collections
 import Levenshtein
-import tensorflow as tf
 import numpy as np
 from PIL import Image
-from torchvision.transforms import ToTensor, Normalize
-
-mean=[0.485, 0.456, 0.406]
-std=[0.229, 0.224, 0.225]
 
 class strLabelConverter(object):
     """Convert between str and label.
@@ -101,75 +93,9 @@ class strLabelConverter(object):
                 index += l
             return texts
 
-
-
-
-class averager(object):
-    """Compute average for `torch.Variable` and `torch.Tensor`. """
-
-    def __init__(self):
-        self.reset()
-
-    def add(self, v):
-        if type(v) is list:
-            self.n_count += len(v)
-            self.sum += sum(v)
-        else:
-            self.n_count += 1
-            self.sum += v
-
-    def reset(self):
-        self.n_count = 0
-        self.sum = 0
-
-    def val(self):
-        res = 0
-        if self.n_count != 0:
-            res = self.sum / float(self.n_count)
-        return res
-
-
-def oneHot(v, v_length, nc):
-    batchSize = v_length.size(0)
-    maxLength = v_length.max()
-    v_onehot = torch.FloatTensor(batchSize, maxLength, nc).fill_(0)
-    acc = 0
-    for i in range(batchSize):
-        length = v_length[i]
-        label = v[acc:acc + length].view(-1, 1).long()
-        v_onehot[i, :length].scatter_(1, label, 1.0)
-        acc += length
-    return v_onehot
-
-
-def loadData(v, data):
-    v.resize_(data.size()).copy_(data)
-
-
-def prettyPrint(v):
-    print('Size {0}, Type: {1}'.format(str(v.size()), v.data.type()))
-    print('| Max: %f | Min: %f | Mean: %f' % (v.max().data[0], v.min().data[0],
-                                              v.mean().data[0]))
-
-
-def assureRatio(img):
-    """Ensure imgH <= imgW."""
-    b, c, h, w = img.size()
-    if h > w:
-        main = nn.UpsamplingBilinear2d(size=(h, h), scale_factor=None)
-        img = main(img)
-    return img
-
-def cer_loss_one_image(sim_pred, label):
-    loss = Levenshtein.distance(sim_pred, label) * 1.0 / max(len(sim_pred), len(label))
-    return loss
-
-def cer_loss(sim_preds, labels):
-    losses = []
-    for i in range(len(sim_preds)):
-        pred = sim_preds[i]
-        text = labels[i]
-
-        loss = cer_loss_one_image(pred, text)
-        losses.append(loss)
+def Levenshtein_loss(sim_preds, labels):
+    losses = 0
+    for i in range(sim_preds.__len__()):
+        loss = Levenshtein.distance(sim_preds[i], labels[i])
+        losses += loss
     return losses
