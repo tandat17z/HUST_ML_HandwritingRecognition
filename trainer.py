@@ -33,11 +33,11 @@ class Trainer:
         for epoch in range(start_epoch + 1, start_epoch + num_epochs + 1):
             self.model.train(True)
             avg_loss, avg_levenshtein_loss = self._train_epoch(epoch)
-            print('--> Epoch: [{}/{}]\t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(epoch, num_epochs, avg_loss, avg_levenshtein_loss))
+            print('--> Epoch: [{}/{}]\t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(epoch, start_epoch + num_epochs, avg_loss, avg_levenshtein_loss))
             
             if epoch % valInterval == 0: 
                 avg_loss, avg_levenshtein_loss = self.tester.eval()
-                print('--> Val: \t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(epoch, avg_loss, avg_levenshtein_loss))
+                print('--> Val: \t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(avg_loss, avg_levenshtein_loss))
             
             if epoch % saveInterval == 0:
                 print('Saving Model...')
