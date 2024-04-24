@@ -1,4 +1,2 @@
 __pycache__/
-data/img.zip
-data/label.zip
-data/OCR_data0.zip
+*.zip
