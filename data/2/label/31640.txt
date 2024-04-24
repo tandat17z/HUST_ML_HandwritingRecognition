@@ -1,0 +1,1 @@
+các thuật toán này có thể được mở rộng để làm việc trên cả các đồ thị

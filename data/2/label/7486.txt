@@ -1,0 +1,1 @@
+các chương trình 8-bit cũ chỉ nhận biết các ký tự 8 bit

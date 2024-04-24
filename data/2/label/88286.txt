@@ -1,0 +1,1 @@
+Chuyển mạch kênh truyền tải cũng là một chức năng lớp MAC

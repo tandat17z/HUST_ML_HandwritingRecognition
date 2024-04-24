@@ -1,0 +1,1 @@
+chênh giờ so với UTC được thể hiện qua con số ở giữa ký hiệu múi giờ

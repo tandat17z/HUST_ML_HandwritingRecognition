@@ -1,0 +1,1 @@
+cache có thể sẽ hủy một trong số những entry hiện có

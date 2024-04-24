@@ -1,0 +1,1 @@
+các kênh thuê bao được tách biệt bằng cách sử dụng mã ngẫu nhiên

@@ -1,0 +1,1 @@
+compressed folders: xem một tập tin nén.zip dưới dạng một thư mục

@@ -1,0 +1,1 @@
+cho ca hai loai so nguyen (integer) va so thuc (real))

@@ -14,7 +14,7 @@ from trainer import *
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', required=True, help='path to data folder')
-    parser.add_argument('--alphabet', type=str, required=True, help='path to char in labels')
+    parser.add_argument('--alphabet', type=str, default='data/char.txt', help='path to char in labels')
     parser.add_argument('--imgH', type=int, default=32, help='the height of the input image to network')
     parser.add_argument('--imgW', type=int, default=512, help='the width of the input image to network')
 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate for Critic, not used by adadealta')
 
     parser.add_argument('--valInterval', type=int, default=5, help='Interval to be displayed')
-    parser.add_argument('--saveInterval', type=int, default=5, help='Interval to be displayed')
+    parser.add_argument('--saveInterval', type=int, default=10, help='Interval to be displayed')
     # parser.add_argument('--', type=int, default=1, help='Interval to be displayed')
 
     # parser.add_argument('--train', required=True, help='path to dataset')

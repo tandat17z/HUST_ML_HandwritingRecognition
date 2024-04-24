@@ -1,0 +1,1 @@
+Chạy Thinstall Và Quét Lại Cấu Hình Hệ Thống (Post-Install Scan)

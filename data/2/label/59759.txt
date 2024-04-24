@@ -1,0 +1,1 @@
+chỉ còn các hạt nhân và các electron đã tách rời khỏi các hạt nhân

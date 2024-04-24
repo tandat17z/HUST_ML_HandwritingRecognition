@@ -1,0 +1,1 @@
+Cac thanh phan duoc xac dinh tren toan cau boi GUIDs;

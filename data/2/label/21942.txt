@@ -1,0 +1,1 @@
+Các neutron tương tác với nhau qua bốn lực cơ bản: lực điện từ

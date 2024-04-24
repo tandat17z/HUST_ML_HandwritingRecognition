@@ -1,0 +1,1 @@
+BYTE THỨ TƯ CÓ GIÁ TRỊ 0X80 CỘNG VỚI 6 BIT TỪ THỨ 1 TỚI THỨ 6

@@ -1,0 +1,1 @@
+calendars cũng có thể xuất ra các ổ đĩa chia sẻ trong mang

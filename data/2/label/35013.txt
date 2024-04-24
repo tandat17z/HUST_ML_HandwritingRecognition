@@ -1,0 +1,1 @@
+các ứng dụng và gói GTK+/GNOME (ví dụ như phần mềm Evolution)

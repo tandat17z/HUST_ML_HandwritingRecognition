@@ -1,0 +1,1 @@
+Chữ halfwidth katakana thông thường được dùng để tiết kiệm bộ nhớ

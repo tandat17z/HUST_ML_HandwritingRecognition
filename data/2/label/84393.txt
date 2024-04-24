@@ -1,0 +1,1 @@
+Chuỗi giao diện người dùng chạy với đặc quyền của người dùng
