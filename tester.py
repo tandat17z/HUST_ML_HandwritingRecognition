@@ -47,4 +47,4 @@ class Tester:
                 print(f'gt: {gt}')
                 i -= 1
                 if( i == 0): break
-        return avg_loss/len(self.dataloader), avg_levenshtein_loss/avg_levenshtein_loss/self.train_dataloader.sampler.num_samples
+        return avg_loss/len(self.dataloader), avg_levenshtein_loss/self.dataloader.sampler.num_samples
