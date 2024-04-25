@@ -29,18 +29,18 @@ class Trainer:
         # self.accs = MetricTracker()
 
 
-    def train(self, num_epochs, valInterval, saveInterval, start_epoch = 1):
+    def train(self, num_epochs, valInterval, saveInterval, start_epoch = 0):
         for epoch in range(start_epoch + 1, start_epoch + num_epochs + 1):
             self.model.train(True)
-            avg_loss, avg_levenshtein_loss = self._train_epoch(epoch)
-            print('--> Epoch: [{}/{}]\t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(epoch, start_epoch + num_epochs, avg_loss, avg_levenshtein_loss))
+            total_loss, levenshtein_loss = self._train_epoch(epoch)
+            print('Epoch: [{}/{}]\t Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + num_epochs, total_loss, levenshtein_loss))
             
             if epoch % valInterval == 0: 
-                avg_loss, avg_levenshtein_loss = self.tester.eval()
-                print('--> Val: \t Avg Loss {:.4f} \t Avg Levenshtein Loss {:.2f}'.format(avg_loss, avg_levenshtein_loss))
+                total_loss, levenshtein_loss = self.tester.eval()
+                print('--> Val: \t Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(total_loss, levenshtein_loss))
             
             if epoch % saveInterval == 0:
-                print('Saving Model...')
+                print('Saving Model...\n')
 
                 checkpoint = {
                     'epoch': epoch,
@@ -52,8 +52,8 @@ class Trainer:
     def _train_epoch(self, epoch_idx):
         # self.losses.reset()
         # self.accs.reset()
-        avg_loss = 0
-        avg_levenshtein_loss = 0
+        total_loss = 0
+        levenshtein_loss = 0
 
         t = tqdm(iter(self.train_dataloader), total=len(self.train_dataloader), desc='Epoch {}'.format(epoch_idx))
         for batch_idx, (imgs, labels) in enumerate(t):
@@ -66,7 +66,7 @@ class Trainer:
             self.optimizer.zero_grad()
 
             preds = self.model(imgs)
-            
+            # print(preds)
             b, l, c = preds.shape
             preds_ = preds.permute(1, 0, 2).to('cpu')
             preds_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
@@ -78,10 +78,10 @@ class Trainer:
             loss.backward()
             self.optimizer.step()
 
-            avg_loss += loss.detach().item()
+            total_loss += loss.detach().item()
 
             _, enc_preds = preds.max(2)
             sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
-            avg_levenshtein_loss += Levenshtein_loss(sim_preds, labels)
+            levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
 
-        return avg_loss/len(self.train_dataloader), avg_levenshtein_loss/self.train_dataloader.sampler.num_samples
+        return total_loss, levenshtein_loss/self.train_dataloader.sampler.num_samples

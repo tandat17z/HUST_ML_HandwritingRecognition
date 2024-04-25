@@ -14,7 +14,7 @@ from trainer import *
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', required=True, help='path to data folder')
-    parser.add_argument('--alphabet', type=str, default='data/char.txt', help='path to char in labels')
+    parser.add_argument('--alphabet', type=str, default='data/mychar.txt', help='path to char in labels')
     parser.add_argument('--imgH', type=int, default=32, help='the height of the input image to network')
     parser.add_argument('--imgW', type=int, default=512, help='the width of the input image to network')
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--manualSeed', type=int, default=1708, help='reproduce experiemnt')
     parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
 
-    parser.add_argument('--num_hidden', type=int, default=100, help='size of the lstm hidden state')
+    parser.add_argument('--num_hidden', type=int, default=125, help='size of the lstm hidden state')
     parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate for Critic, not used by adadealta')
 
@@ -54,12 +54,13 @@ if __name__ == '__main__':
     print("---------------------------------------------------")
 
     # --------------Tạo Dataset -------------------------------------------------------
-    dataset = DatasetImg(opt.data + '/img', opt.data + '/label', opt.imgW, opt.imgH)
+    dataset = DatasetImg(opt.data + '/img', opt.data + '/label', imgH = opt.imgH, imgW = opt.imgW)
 
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
     # print(alphabet)
-    converter = strLabelConverter(alphabet, ignore_case=True)
+    converter = strLabelConverter(alphabet)
+    print('Num class: ', converter.numClass)
 
     # --------------------- Create Model ---------------------------------
     model = CRNN(converter.numClass, opt.num_hidden, opt.dropout).to(device)

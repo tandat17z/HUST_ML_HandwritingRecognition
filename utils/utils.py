@@ -17,19 +17,17 @@ class strLabelConverter(object):
         ignore_case (bool, default=True): whether or not to ignore all of the case.
     """
 
-    def __init__(self, alphabet, ignore_case=True):
+    def __init__(self, alphabet, ignore_case=False):
         self._ignore_case = ignore_case
         if self._ignore_case:
             alphabet = alphabet.lower()
-        self.alphabet = alphabet + '-'  # for `-1` index
-
+        self.alphabet = '~' + alphabet  # ~ = 0 coi là blank
+        # print(self.alphabet)
         self.dict = {}
-        i = 0
-        for char in alphabet:
+
+        for i, char in enumerate(self.alphabet):
             # NOTE: 0 is reserved for 'blank' required by wrap_ctc
-            if char not in self.dict.keys(): 
-                i += 1
-                self.dict[char] = i 
+            self.dict[char] = i 
 
         self.numClass = len(self.dict.keys())
         
@@ -73,12 +71,12 @@ class strLabelConverter(object):
             length = length[0]
             assert t.numel() == length, "text with length: {} does not match declared length: {}".format(t.numel(), length)
             if raw:
-                return ''.join([self.alphabet[i - 1] for i in t])
+                return ''.join([self.alphabet[i] for i in t])
             else:
                 char_list = []
                 for i in range(length):
                     if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):
-                        char_list.append(self.alphabet[t[i] - 1])
+                        char_list.append(self.alphabet[t[i]])
                 return ''.join(char_list)
         else:
             # batch mode
@@ -93,9 +91,10 @@ class strLabelConverter(object):
                 index += l
             return texts
 
-def Levenshtein_loss(sim_preds, labels):
-    losses = 0
-    for i in range(sim_preds.__len__()):
-        loss = Levenshtein.distance(sim_preds[i], labels[i])
-        losses += loss
-    return losses
+    def Levenshtein_loss(self, sim_preds, labels):
+        losses = 0
+        for i in range(sim_preds.__len__()):
+            l = labels[i].lower() if self._ignore_case else labels[i]
+            loss = Levenshtein.distance(sim_preds[i], l)
+            losses += loss
+        return losses
