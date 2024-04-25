@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
     parser.add_argument('--nepoch', type=int, default=100, help='number of epochs to train for')
     parser.add_argument('--cuda', action='store_true', help='enables cuda')
-    parser.add_argument('--manualSeed', type=int, default=1234, help='reproduce experiemnt')
+    parser.add_argument('--manualSeed', type=int, default=1708, help='reproduce experiemnt')
     parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
 
     parser.add_argument('--num_hidden', type=int, default=100, help='size of the lstm hidden state')
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     random.seed(opt.manualSeed)
     np.random.seed(opt.manualSeed)
-    # torch.manual_seed(opt.manualSeed) # Comment lại để cho khởi tạo tham số ngẫu nhiên
+    torch.manual_seed(opt.manualSeed) # Comment lại để cho khởi tạo tham số ngẫu nhiên
 
     # if torch.cuda.is_available() :
     #     print("WARNING: You have a CUDA device, so you should probably run with --cuda")

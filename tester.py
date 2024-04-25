@@ -31,8 +31,8 @@ class Tester:
                 preds_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
 
                 loss = self.criterion(preds_.log_softmax(2), targets, preds_lengths, target_lenghts) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
-            
                 avg_loss += loss.detach().item()
+
                 _, enc_preds = preds.max(2)
                 sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
                 avg_levenshtein_loss += Levenshtein_loss(sim_preds, labels)
@@ -47,4 +47,4 @@ class Tester:
                 print(f'gt: {gt}')
                 i -= 1
                 if( i == 0): break
-        return avg_loss/len(self.dataloader), avg_levenshtein_loss/len(self.dataloader)
+        return avg_loss/len(self.dataloader), avg_levenshtein_loss/avg_levenshtein_loss/self.train_dataloader.sampler.num_samples

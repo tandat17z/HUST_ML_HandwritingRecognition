@@ -72,6 +72,9 @@ class Trainer:
             preds_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
 
             loss = self.criterion(preds_.log_softmax(2), targets, preds_lengths, target_lenghts) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
+            assert (not torch.isnan(loss) and not torch.isinf(loss)), "Loss value is NaN or Inf"
+
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
             loss.backward()
             self.optimizer.step()
 
@@ -81,4 +84,4 @@ class Trainer:
             sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             avg_levenshtein_loss += Levenshtein_loss(sim_preds, labels)
 
-        return avg_loss/len(self.train_dataloader), avg_levenshtein_loss/len(self.train_dataloader)
+        return avg_loss/len(self.train_dataloader), avg_levenshtein_loss/self.train_dataloader.sampler.num_samples
