@@ -7,6 +7,7 @@ import os
 from torch.utils.data import random_split
 
 from model.crnn import CRNN
+from model.MyCrnn import MyCRNN
 from dataset import DatasetImg
 from utils.utils import *
 from trainer import *
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     print('Num class: ', converter.numClass)
 
     # --------------------- Create Model ---------------------------------
-    model = CRNN(converter.numClass, opt.num_hidden, opt.dropout).to(device)
+    model = MyCRNN(converter.numClass, opt.num_hidden, opt.dropout).to(device)
     # print(f"Model structure: {model}\n\n")
     # for name, param in model.named_parameters():
     #     print(f"Layer: {name} | Size: {param.size()} | Values : {param[:2]} \n")
