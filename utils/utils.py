@@ -18,13 +18,7 @@ def img_loader(path, imgH = 32, imgW = 512):
     img = Image.open(path).convert('L')
     img = img.point(lambda p: 255 - p) # chuyển background về màu đen 0
 
-    # Cắt bỏ khoảng trống bị thừa xung quanh
-    img_array = np.array(img)
-    non_empty_columns = np.where(img_array.max(axis=0) > 0)[0]
-    non_empty_rows = np.where(img_array.max(axis=1) > 0)[0]
-    cropped_img = img_array[min(non_empty_rows):max(non_empty_rows) + 1,
-                        min(non_empty_columns):max(non_empty_columns) + 1]
-    img = Image.fromarray(cropped_img)
+    img = cropImg(img)
 
     # Resize hình ảnh + thêm padding (nếu cần)
     desired_w, desired_h = imgW, imgH #(width, height)
@@ -49,3 +43,13 @@ def target_loader(path):
     with open(path, 'r', encoding='utf-8') as f:
         label = f.read().rstrip('\n')
     return label.strip()
+
+def cropImg(img):
+    # Cắt bỏ khoảng trống bị thừa xung quanh
+    img_array = np.array(img)
+    non_empty_columns = np.where(img_array.max(axis=0) > 0)[0]
+    non_empty_rows = np.where(img_array.max(axis=1) > 0)[0]
+    cropped_img = img_array[min(non_empty_rows):max(non_empty_rows) + 1,
+                        min(non_empty_columns):max(non_empty_columns) + 1]
+    cropped_img = Image.fromarray(cropped_img)
+    return cropped_img

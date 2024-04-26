@@ -6,7 +6,7 @@ from utils.utils import *
 from tester import Tester
 
 class Trainer:
-    def __init__(self, model, optimizer, criterion, converter, dataset, batch_size):
+    def __init__(self, model, optimizer, criterion, converter, train_dataset, batch_size):
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
@@ -14,49 +14,18 @@ class Trainer:
         self.device = next(self.model.parameters()).device
         self.batch_size = batch_size
 
-        train_dataset, test_dataset = random_split(dataset, [0.8, 0.2])
         self.train_dataloader = torch.utils.data.DataLoader(
                     train_dataset,
                     batch_size=self.batch_size,
                     shuffle=True)
 
-        self.tester = Tester(self.model, 
-                            criterion=self.criterion, 
-                            converter=self.converter,
-                            dataset=test_dataset,
-                            batch_size=self.batch_size)
-
-
-    def train(self, num_epochs, valInterval, saveInterval, start_epoch = 0):
-        for epoch in range(start_epoch + 1, start_epoch + num_epochs + 1):
-            # Train -------------------------
-            self.model.train(True)
-            total_loss, levenshtein_loss = self._train_epoch(epoch)
-            print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + num_epochs, total_loss, levenshtein_loss))
-            
-            # Val ---------------------------
-            if epoch % valInterval == 0: 
-                total_loss, levenshtein_loss = self.tester.eval()
-                print('--> Val: \t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(total_loss, levenshtein_loss))
-            
-            # Save --------------------------
-            if epoch % saveInterval == 0:
-                print('Saving Model...\n')
-
-                checkpoint = {
-                    'epoch': epoch,
-                    'model_state_dict': self.model.state_dict(),  # Lưu trạng thái của mô hình
-                    'optimizer_state_dict': self.optimizer.state_dict(),  # Lưu trạng thái của optimizer
-                }
-                torch.save(checkpoint, f'pretrain/model_{epoch}.pth.tar')
-
-    def _train_epoch(self, epoch_idx):
+    def train(self):
         # self.losses.reset()
         # self.accs.reset()
         total_loss = 0
         levenshtein_loss = 0
 
-        t = tqdm(iter(self.train_dataloader), total=len(self.train_dataloader), desc='Epoch {}'.format(epoch_idx))
+        t = tqdm(iter(self.train_dataloader), total=len(self.train_dataloader))
         for batch_idx, (imgs, labels) in enumerate(t):
             imgs = imgs.to(self.device)
 

@@ -4,14 +4,14 @@ import torch
 
 class MyCRNN(nn.Module):
 
-    def __init__(self, nclass, num_hidden, dropout = 0):
+    def __init__(self, nclass, num_hidden, dropout = 0.1):
         print('>>>> use MyCrnn-------------\n')
         super(MyCRNN, self).__init__()
 
         # ks = [ 3,   3,   3,   3,   3,   3,   1,   1,   1]
         # ss = [ 1,   1,   1,   1,   1,   1,   1,   1,   1]
         # ps = [ 1,   1,   1,   1,   1,   1,   1,   1,   1]
-        nm = [64, 128, 256, 256, 256, 512, 512, 512, 512]
+        nm = [64, 128, 128, 256, 256, 512, 512, 512, 512, 512]
 
         cnn = nn.Sequential()
         def convRelu(i):
@@ -27,16 +27,18 @@ class MyCRNN(nn.Module):
         convRelu(0)
         cnn.add_module('pooling{0}'.format(0), nn.MaxPool2d((2, 2)))  # 64, 16, 256
         convRelu(1) 
-        cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d((2, 2)))  # 128, 8, 128
         convRelu(2) 
+        cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d((2, 2)))  # 128, 8, 128
         convRelu(3) 
-        cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d((2, 1)))  # 256, 4, 128
         convRelu(4) 
-        convRelu(5)
+        cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d((2, 1)))  # 256, 4, 128
+        convRelu(5) 
+        convRelu(6)
         cnn.add_module('pooling{0}'.format(3), nn.MaxPool2d((2, 1)))  # 512, 2, 128
-        convRelu(6) 
-        convRelu(7)
+        convRelu(7) 
+        convRelu(8)
         cnn.add_module('pooling{0}'.format(4), nn.MaxPool2d((2, 1)))  # 512, 1, 128
+        convRelu(9)
 
         self.cnn = cnn
 
@@ -56,7 +58,10 @@ class MyCRNN(nn.Module):
         x2, _  = self.biLSTM1(x1) # b, 128, num_hidden*2
         x2 = self.dropout1(x2) 
 
-        x3 = self.linear(x2) # b, 128, num_class
-        out = self.dropout(x3)
+        # x3, _ = self.biLSTM2(x2)
+        # x3 = self.dropout2(x3)
+
+        x4 = self.linear(x2) # b, 128, num_class
+        out = self.dropout(x4)
 
         return out

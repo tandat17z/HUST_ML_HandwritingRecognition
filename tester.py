@@ -3,16 +3,16 @@ import torch
 from utils import utils
 
 class Tester:
-    def __init__(self, model, criterion, converter, dataset = False, batch_size = 64):
+    def __init__(self, model, criterion, converter, test_dataset = False, batch_size = 64):
         self.model = model
         self.converter = converter
         self.criterion = criterion
         self.batch_size = batch_size
         self.device = next(self.model.parameters()).device
 
-        if dataset:
+        if test_dataset:
             self.dataloader = torch.utils.data.DataLoader(
-                        dataset,
+                        test_dataset,
                         batch_size=batch_size,
                         shuffle=True)
         
@@ -25,6 +25,7 @@ class Tester:
         self.batch_size = batch_size
 
     def predict(self, imgpath):
+        self.model.eval()
         img = utils.img_loader(imgpath)
         input = img.unsqueeze(0).to(self.device)
 
