@@ -1,1 +1,0 @@
-cho phép Internet Explorer 4 có thể chạy song song với 5.x

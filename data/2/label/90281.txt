@@ -1,1 +1,0 @@
-c là ký hiệu để chỉ utc+3 hay msk (tức múi giờ moskva)

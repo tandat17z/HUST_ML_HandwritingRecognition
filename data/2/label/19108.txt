@@ -1,1 +1,0 @@
-Các liên kết giữa phím số và phím chữ dựa vào các mã mặc định trước

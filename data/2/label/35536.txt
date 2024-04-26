@@ -1,1 +1,0 @@
-Các vật thể cũng có thể hấp thụ bức xạ phát ra từ vật thể khác;

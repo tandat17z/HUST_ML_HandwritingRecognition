@@ -1,1 +1,0 @@
-byte thứ hai có giá trị 0x80 cộng với 6 bit từ thứ 7 tới 12;

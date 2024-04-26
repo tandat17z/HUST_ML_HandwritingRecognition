@@ -1,1 +1,0 @@
-chi co module JScript va VBScript la duoc cung cap;

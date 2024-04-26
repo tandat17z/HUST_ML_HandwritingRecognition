@@ -1,1 +1,0 @@
-cho phép kết nối đến các ứng dụng dựa trên Cocoa API;

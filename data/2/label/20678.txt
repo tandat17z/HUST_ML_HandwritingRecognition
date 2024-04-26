@@ -1,1 +1,0 @@
-các mạch điện tử được sử dụng để miêu tả các phép tính bool

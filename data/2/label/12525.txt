@@ -1,1 +1,0 @@
-"Các đồng vị còn lại có chu kỳ bán rã dưới 8,6 ms"

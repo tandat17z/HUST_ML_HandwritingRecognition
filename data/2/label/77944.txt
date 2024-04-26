@@ -1,1 +1,0 @@
-Chrome su dung bo may render WebKit tu nhom Android

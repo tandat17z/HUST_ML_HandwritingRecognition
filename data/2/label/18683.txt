@@ -1,1 +1,0 @@
-Các ký tự từ 0 đến 32 theo hệ thập phân không thể in ra màn hình

@@ -1,16 +1,47 @@
-from utils.utils import *
 from tqdm import tqdm
+import torch
+from utils import utils
 
 class Tester:
-    def __init__(self, model, criterion, dataloader, converter):
+    def __init__(self, model, criterion, converter, dataset = False, batch_size = 64):
         self.model = model
-        self.device = next(self.model.parameters()).device
-        self.dataloader = dataloader
         self.converter = converter
         self.criterion = criterion
+        self.batch_size = batch_size
+        self.device = next(self.model.parameters()).device
+
+        if dataset:
+            self.dataloader = torch.utils.data.DataLoader(
+                        dataset,
+                        batch_size=batch_size,
+                        shuffle=True)
+        
+
+    def setDataset(self, dataset, batch_size = 64):
+        self.dataloader = torch.utils.data.DataLoader(
+                        dataset,
+                        batch_size=batch_size,
+                        shuffle=True)
+        self.batch_size = batch_size
+
+    def predict(self, imgpath):
+        img = utils.img_loader(imgpath)
+        input = img.unsqueeze(0).to(self.device)
+
+        pred = self.model(input)
+                
+        b, l, c = pred.shape
+        pred_ = pred.permute(1, 0, 2).to('cpu')
+        pred_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
+
+        _, enc_pred = pred_.max(2)
+        sim_pred = self.converter.decode(enc_pred.view(-1), pred_lengths, raw = False)
+        return sim_pred
 
     def eval(self, print_ = True):
         print("Tester.eval...")
+        assert self.dataloader != False, "Tester: error self.dataloader = False "
+        
         self.model.eval()
         with torch.no_grad():
             total_loss = 0
@@ -26,6 +57,7 @@ class Tester:
 
                 preds = self.model(imgs)
                 
+                # Compute Loss -------------------------------
                 b, l, c = preds.shape
                 preds_ = preds.permute(1, 0, 2).to('cpu')
                 preds_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
@@ -36,7 +68,8 @@ class Tester:
                 _, enc_preds = preds.max(2)
                 sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
                 levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
-                
+
+        # Display ----------------------------------------  
         if print_:
             raw_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = True)
             i = 5
@@ -47,4 +80,8 @@ class Tester:
                 print(f'gt: {gt}')
                 i -= 1
                 if( i == 0): break
-        return total_loss, levenshtein_loss/self.dataloader.sampler.num_samples
+
+        total_loss = total_loss/self.dataloader.sampler.num_samples * self.batch_size
+        levenshtein_loss = levenshtein_loss/self.dataloader.sampler.num_samples
+
+        return total_loss, levenshtein_loss

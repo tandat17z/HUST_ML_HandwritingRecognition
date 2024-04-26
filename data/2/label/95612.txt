@@ -1,1 +1,0 @@
-có hiệu số bàn thắng bại cao nhất trong tất cả các trận đấu của bảng;

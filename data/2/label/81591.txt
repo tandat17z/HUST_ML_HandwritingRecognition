@@ -1,1 +1,0 @@
-Chúng Có Thể Được Đặt Là Kênh Chính (Master) Hoặc Kênh Phụ (Slave)

@@ -1,1 +1,0 @@
-có một giới hạn chưa xác định mà chỉ phụ thuộc vào cơ số a

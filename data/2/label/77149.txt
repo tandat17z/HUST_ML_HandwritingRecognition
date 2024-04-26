@@ -1,1 +1,0 @@
-Cho thấy ở mốc này có “working set” vào khoảng 64KB

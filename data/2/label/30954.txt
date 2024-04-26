@@ -1,1 +1,0 @@
-Các thay đổi khác là hỗ trợ dịch vụ Cloud to Device Messaging (C2DM)

@@ -1,1 +1,0 @@
-Các lò thử nghiệm làm việc với dòng điện khoảng 500.000 A

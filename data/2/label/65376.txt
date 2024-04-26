@@ -1,1 +1,0 @@
-chỉ lưu dữ liệu hình ảnh nào là hữu ích cho việc nhận dạng khuôn mặt

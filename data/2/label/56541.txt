@@ -1,1 +1,0 @@
-chạy một lệnh một chu kỳ máy (4 chu kỳ của bộ dao động)

@@ -1,4 +1,7 @@
 __pycache__/
 *.zip
-data/IAM/
-data/1/
+data/raw/
+data/dataIAM/
+data/data2/
+pretrain/Crnn/
+data/data1/InkData_line_processed/

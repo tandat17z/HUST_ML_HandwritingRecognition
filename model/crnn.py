@@ -5,6 +5,7 @@ import torch
 class CRNN(nn.Module):
 
     def __init__(self, nclass, num_hidden, dropout = 0):
+        print("use CRNN ---------------\n")
         super(CRNN, self).__init__()
 
         ks = [ 3,      3,      3,      3,      3,   3, 1]

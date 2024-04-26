@@ -1,1 +1,0 @@
-có ít nhất một cell mất đi giữa các cell mà được sử dụng lại

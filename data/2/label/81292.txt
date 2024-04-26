@@ -1,1 +1,0 @@
-chúng bao gồm: linux standard base (lsb) và linux developer network

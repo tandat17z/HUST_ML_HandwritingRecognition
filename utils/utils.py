@@ -1,100 +1,51 @@
-#!/usr/bin/python
-# encoding: utf-8
-
-import torch
-import Levenshtein
-import numpy as np
 from PIL import Image
+import numpy as np
+from torchvision.transforms import ToTensor
+import os
 
-class strLabelConverter(object):
-    """Convert between str and label.
-
-    NOTE:
-        Insert `blank` to the alphabet for CTC.
-
-    Args:
-        alphabet (str): set of the possible characters.
-        ignore_case (bool, default=True): whether or not to ignore all of the case.
-    """
-
-    def __init__(self, alphabet, ignore_case=False):
-        self._ignore_case = ignore_case
-        if self._ignore_case:
-            alphabet = alphabet.lower()
-        self.alphabet = '~' + alphabet  # ~ = 0 coi là blank
-        # print(self.alphabet)
-        self.dict = {}
-
-        for i, char in enumerate(self.alphabet):
-            # NOTE: 0 is reserved for 'blank' required by wrap_ctc
-            self.dict[char] = i 
-
-        self.numClass = len(self.dict.keys())
+def flist_reader(imgs, labels):
+    imlist = []
+    for impath in os.listdir(imgs):
+        imlabel = os.path.splitext(impath)[0] + '.txt'
         
-    def encode(self, text):
-        """Support batch or single str.
+        impath = imgs + '/' + impath
+        imlabel = labels + '/' +  imlabel
+        imlist.append((impath, imlabel))
+                                    
+    return imlist
 
-        Args:
-            text (str or list of str): texts to convert.
+def img_loader(path, imgH = 32, imgW = 512):
+    img = Image.open(path).convert('L')
+    img = img.point(lambda p: 255 - p) # chuyển background về màu đen 0
 
-        Returns:
-            torch.IntTensor [length_0 + length_1 + ... length_{n - 1}]: encoded texts.
-            torch.IntTensor [n]: length of each text.
-        """
-        if isinstance(text, str):
-            text = [
-                self.dict[char.lower() if self._ignore_case else char]
-                for char in text
-            ]
-            length = [len(text)]
-        else: 
-            length = [len(s) for s in text]
-            text = ''.join(text)
-            text, _ = self.encode(text)  
-                
-        return (torch.IntTensor(text), torch.IntTensor(length))
+    # Cắt bỏ khoảng trống bị thừa xung quanh
+    img_array = np.array(img)
+    non_empty_columns = np.where(img_array.max(axis=0) > 0)[0]
+    non_empty_rows = np.where(img_array.max(axis=1) > 0)[0]
+    cropped_img = img_array[min(non_empty_rows):max(non_empty_rows) + 1,
+                        min(non_empty_columns):max(non_empty_columns) + 1]
+    img = Image.fromarray(cropped_img)
 
-    def decode(self, t, length, raw=False):
-        """Decode encoded texts back into strs.
+    # Resize hình ảnh + thêm padding (nếu cần)
+    desired_w, desired_h = imgW, imgH #(width, height)
+    img_w, img_h = img.size  # old_size[0] is in (width, height) format
+    ratio = 1.0*img_w/img_h
+    new_w = int(desired_h*ratio)
+    new_w = new_w if desired_w == None else min(desired_w, new_w)
+    img = img.resize((new_w, desired_h), Image.Resampling.LANCZOS)
 
-        Args:
-            torch.IntTensor [length_0 + length_1 + ... length_{n - 1}]: encoded texts.
-            torch.IntTensor [n]: length of each text.
-
-        Raises:
-            AssertionError: when the texts and its length does not match.
-
-        Returns:
-            text (str or list of str): texts to convert.
-        """
-        if length.numel() == 1:
-            length = length[0]
-            assert t.numel() == length, "text with length: {} does not match declared length: {}".format(t.numel(), length)
-            if raw:
-                return ''.join([self.alphabet[i] for i in t])
-            else:
-                char_list = []
-                for i in range(length):
-                    if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):
-                        char_list.append(self.alphabet[t[i]])
-                return ''.join(char_list)
-        else:
-            # batch mode
-            assert t.numel() == length.sum(), "texts with length: {} does not match declared length: {}".format(t.numel(), length.sum())
-            texts = []
-            index = 0
-            for i in range(length.numel()):
-                l = length[i]
-                texts.append(
-                    self.decode(
-                        t[index:index + l], torch.IntTensor([l]), raw=raw))
-                index += l
-            return texts
-
-    def Levenshtein_loss(self, sim_preds, labels):
-        losses = 0
-        for i in range(sim_preds.__len__()):
-            l = labels[i].lower() if self._ignore_case else labels[i]
-            loss = Levenshtein.distance(sim_preds[i], l)
-            losses += loss
-        return losses
+    # padding image
+    if desired_w != None and desired_w > new_w:
+        new_img = Image.new("L", (desired_w, desired_h), color=0)
+        new_img.paste(img, (0, 0))
+        img = new_img
+    
+    # img = np.array(img)
+    # return torch.from_numpy(img)
+    # img = img.resize((self.imgW, self.imgH), Image.Resampling.LANCZOS)
+    return ToTensor()(img)
+    
+def target_loader(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        label = f.read().rstrip('\n')
+    return label.strip()

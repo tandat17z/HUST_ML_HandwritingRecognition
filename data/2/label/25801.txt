@@ -1,1 +1,0 @@
-các nút con của nó được xem xét và bổ sung vào cấu trúc dữ liệu đó

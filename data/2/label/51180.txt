@@ -1,1 +1,0 @@
-c (country): thực thể cơ bản gồm dân số và lãnh thổ
