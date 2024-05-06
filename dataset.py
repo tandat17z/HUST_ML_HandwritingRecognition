@@ -4,7 +4,7 @@ from utils import utils
 class DatasetImg(torch.utils.data.Dataset):
     def __init__(self, imgFolder, labelFolder):
         self.imgH = 32
-        self.imgW = 512
+        self.imgW = 800
         self.imlist = utils.flist_reader(imgFolder, labelFolder)
 
     def __getitem__(self, index):

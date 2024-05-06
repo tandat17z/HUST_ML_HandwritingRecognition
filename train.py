@@ -12,8 +12,8 @@ from utils.StrLabelConverter import *
 from trainer import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--trainData', required=True, help='path to traindata folder')
-parser.add_argument('--testData', required=True, help='path to traindata folder')
+parser.add_argument('--traindata', required=True, help='path to traindata folder')
+parser.add_argument('--testdata', required=True, help='path to traindata folder')
 parser.add_argument('--alphabet', type=str, default='data/mychar.txt', help='path to char in labels')
 
 parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
@@ -21,7 +21,7 @@ parser.add_argument('--nepochs', type=int, default=100, help='number of epochs t
 parser.add_argument('--manualSeed', type=int, default=1708, help='reproduce experiemnt')
 parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
 
-parser.add_argument('--num_hidden', type=int, default=155, help='size of the lstm hidden state')
+parser.add_argument('--num_hidden', type=int, default=200, help='size of the lstm hidden state')
 parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate for Critic, not used by adadealta')
 
@@ -40,8 +40,8 @@ if __name__ == '__main__':
     print("---------------------------------------------------")
 
     # --------------Tạo Dataset -------------------------------------------------------
-    train_dataset = DatasetImg(opt.trainData + '/img', opt.trainData + '/label')
-    test_dataset = DatasetImg(opt.testData + '/img', opt.testData + '/label')
+    train_dataset = DatasetImg(opt.traindata + '/img', opt.traindata + '/label')
+    test_dataset = DatasetImg(opt.testdata + '/img', opt.testdata + '/label')
 
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
