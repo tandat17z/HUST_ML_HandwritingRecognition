@@ -101,7 +101,7 @@ if __name__ == '__main__':
             optimizer.zero_grad()
             preds = model(imgs)
             
-            preds_, targets, preds_lengths, target_lengths = GetInputCTCLoss(preds, labels)
+            preds_, preds_lengths, targets, target_lengths = GetInputCTCLoss(preds, labels)
             loss = criterion(preds_.log_softmax(2), targets, preds_lengths, target_lengths) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
             assert (not torch.isnan(loss) and not torch.isinf(loss)), "Loss value is NaN or Inf"
             
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                     imgs = imgs.to(device)
                     preds = model(imgs)
                     
-                    preds_, targets, preds_lengths, target_lengths = GetInputCTCLoss(preds, labels)
+                    preds_, preds_lengths, targets, target_lengths = GetInputCTCLoss(preds, labels)
                     loss = criterion(preds_.log_softmax(2), targets, preds_lengths, target_lengths) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
                     total_loss += loss.detach().item()
 
