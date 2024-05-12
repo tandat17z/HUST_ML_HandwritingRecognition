@@ -31,8 +31,8 @@ def img_loader(path, imgH = 32, imgW = 512):
     # padding image
     if desired_w != None and desired_w > new_w:
         new_img = Image.new("L", (desired_w, desired_h), color=0)
-        # new_img.paste(img, (0, 0))
-        new_img.paste(img, (int((desired_w - new_w) / 2), 0))
+        new_img.paste(img, (0, 0))
+        # new_img.paste(img, (int((desired_w - new_w) / 2), 0))
         img = new_img
     
     # img = np.array(img)
