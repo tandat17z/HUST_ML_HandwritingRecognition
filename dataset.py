@@ -2,9 +2,9 @@ import torch
 from utils import utils
 
 class DatasetImg(torch.utils.data.Dataset):
-    def __init__(self, imgFolder, labelFolder):
-        self.imgH = 32
-        self.imgW = 800
+    def __init__(self, imgFolder, labelFolder, imgH = 32, imgW = 800):
+        self.imgH = imgH
+        self.imgW = imgW
         self.imlist = utils.flist_reader(imgFolder, labelFolder)
 
     def __getitem__(self, index):

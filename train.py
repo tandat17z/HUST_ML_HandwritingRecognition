@@ -81,9 +81,9 @@ if __name__ == '__main__':
     for epoch in range(start_epoch + 1, start_epoch + opt.nepochs + 1):
         print('Epoch: ', epoch)
         # Train -------------------------
-        # model.train(True)
-        # total_loss, levenshtein_loss = trainer.train()
-        # print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
+        model.train(True)
+        total_loss, levenshtein_loss = trainer.train()
+        print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
         
         # Val ---------------------------
         if epoch % opt.valInterval == 0: 
