@@ -12,8 +12,8 @@ from utils.StrLabelConverter import *
 from trainer import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--traindata', required=True, help='path to traindata folder')
-parser.add_argument('--testdata', required=True, help='path to traindata folder')
+parser.add_argument('--train', required=True, help='path to traindata folder')
+parser.add_argument('--test', required=True, help='path to traindata folder')
 parser.add_argument('--alphabet', type=str, default='data/mychar.txt', help='path to char in labels')
 
 parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
@@ -40,8 +40,8 @@ if __name__ == '__main__':
     print("---------------------------------------------------")
 
     # --------------Tạo Dataset -------------------------------------------------------
-    train_dataset = DatasetImg(opt.traindata + '/img', opt.traindata + '/label')
-    test_dataset = DatasetImg(opt.testdata + '/img', opt.testdata + '/label')
+    train_dataset = DatasetImg(opt.train + '/img', opt.train + '/label')
+    test_dataset = DatasetImg(opt.test + '/img', opt.test + '/label')
 
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
@@ -81,9 +81,9 @@ if __name__ == '__main__':
     for epoch in range(start_epoch + 1, start_epoch + opt.nepochs + 1):
         print('Epoch: ', epoch)
         # Train -------------------------
-        model.train(True)
-        total_loss, levenshtein_loss = trainer.train()
-        print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
+        # model.train(True)
+        # total_loss, levenshtein_loss = trainer.train()
+        # print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
         
         # Val ---------------------------
         if epoch % opt.valInterval == 0: 

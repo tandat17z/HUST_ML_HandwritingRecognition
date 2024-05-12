@@ -11,7 +11,7 @@ class MyCRNN(nn.Module):
         # ks = [ 3,   3,   3,   3,   3,   3,   1,   1,   1]
         # ss = [ 1,   1,   1,   1,   1,   1,   1,   1,   1]
         # ps = [ 1,   1,   1,   1,   1,   1,   1,   1,   1]
-        nm = [64, 64, 128, 128, 256, 256, 512, 512, 512, 512]
+        nm = [64, 128, 256, 256, 512, 512, 512, 512]
 
         cnn = nn.Sequential()
         def convRelu(i):
@@ -25,19 +25,17 @@ class MyCRNN(nn.Module):
 
         # input : (C, H, W) - (1, 32, 512) /800
         convRelu(0)
-        convRelu(1) 
         cnn.add_module('pooling{0}'.format(0), nn.MaxPool2d((2, 2)))  # 64, 16, 256/ 400
+        convRelu(1)
+        cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d((2, 2)))  # 128, 8, 128/ 200
         convRelu(2) 
         convRelu(3) 
-        cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d((2, 1)))  # 128, 8, 128/ 400
-        convRelu(4) 
+        cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d((2, 1)))  # 256, 4, 128/ 200
+        convRelu(4)
         convRelu(5) 
-        cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d((2, 2)))  # 256, 4, 128/ 200
-        convRelu(6)
-        convRelu(7) 
         cnn.add_module('pooling{0}'.format(3), nn.MaxPool2d((2, 1)))  # 512, 2, 128/ 200
-        convRelu(8)
-        convRelu(9)
+        convRelu(6)
+        convRelu(7)
         cnn.add_module('pooling{0}'.format(4), nn.MaxPool2d((2, 1)))  # 512, 1, 128/ 200
 
         self.cnn = cnn
