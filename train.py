@@ -167,4 +167,4 @@ if __name__ == '__main__':
                 'model_state_dict': model.state_dict(),  # Lưu trạng thái của mô hình
                 'optimizer_state_dict': optimizer.state_dict(),  # Lưu trạng thái của optimizer
             }
-            torch.save(checkpoint, f'pretrain/model_{epoch}.pth.tar')
+            torch.save(checkpoint, f'checkpoint/checkpoint-{epoch}.pth.tar')
