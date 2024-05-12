@@ -35,6 +35,17 @@ random.seed(opt.manualSeed)
 np.random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed) # Comment lại để cho khởi tạo tham số ngẫu nhiên
 
+def GetInputCTCLoss(preds, labels):
+    b, l, c = preds.shape
+    preds_ = preds.permute(1, 0, 2).to('cpu')
+    preds_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
+
+    targets, target_lengths = converter.encode(labels)
+    targets = targets.to('cpu')
+    target_lengths = target_lengths.to('cpu')
+
+    return preds_, preds_lengths, targets, target_lengths
+
 if __name__ == '__main__':
     device = ( "cuda" if torch.cuda.is_available() else "cpu")
     print("---------------------------------------------------")
@@ -45,6 +56,15 @@ if __name__ == '__main__':
     train_dataset = DatasetImg(opt.train + '/img', opt.train + '/label', imgW=opt.imgW)
     test_dataset = DatasetImg(opt.test + '/img', opt.test + '/label', imgW=opt.imgW)
 
+    train_dataloader = torch.utils.data.DataLoader(
+                    train_dataset,
+                    batch_size=opt.batch_size,
+                    shuffle=True)
+    test_dataloader = torch.utils.data.DataLoader(
+                    test_dataset,
+                    batch_size=opt.batch_size,
+                    shuffle=True)
+    
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
     converter = StrLabelConverter(alphabet)
@@ -67,28 +87,75 @@ if __name__ == '__main__':
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         start_epoch = checkpoint['epoch']
 
-    trainer = Trainer(model, 
-                      optimizer = optimizer,
-                      criterion = criterion, 
-                      converter = converter,
-                      train_dataset = train_dataset,
-                      batch_size = opt.batch_size)
-    
-    tester = Tester(model,
-                      criterion = criterion, 
-                      converter = converter,
-                      test_dataset = test_dataset,
-                      batch_size = opt.batch_size)
-    
+    # Training----------------------------------------------------------------------------------
     for epoch in range(start_epoch + 1, start_epoch + opt.nepochs + 1):
         print('Epoch: ', epoch)
         # Train -------------------------
-        total_loss, levenshtein_loss = trainer.train()
+        model.train(True)
+        total_loss = 0
+        levenshtein_loss = 0
+
+        t = tqdm(iter(train_dataloader), total=len(train_dataloader))
+        for batch_idx, (imgs, labels) in enumerate(t):
+            imgs = imgs.to(device)
+            optimizer.zero_grad()
+            preds = model(imgs)
+            
+            preds_, targets, preds_lengths, target_lengths = GetInputCTCLoss(preds, labels)
+            loss = criterion(preds_.log_softmax(2), targets, preds_lengths, target_lengths) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
+            assert (not torch.isnan(loss) and not torch.isinf(loss)), "Loss value is NaN or Inf"
+            
+            # Backward -------------------------------------------------
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.detach().item()
+
+            _, enc_preds = preds.max(2)
+            sim_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
+            levenshtein_loss += converter.Levenshtein_loss(sim_preds, labels)
+
+        total_loss = total_loss
+        levenshtein_loss = levenshtein_loss/train_dataloader.sampler.num_samples 
         print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
         
         # Val ---------------------------
         if epoch % opt.valInterval == 0: 
-            total_loss, levenshtein_loss = tester.eval()
+            print("Tester.eval...")
+            model.eval()
+            with torch.no_grad():
+                total_loss = 0
+                levenshtein_loss = 0
+
+                t = tqdm(iter(test_dataloader), total=len(test_dataloader))
+                for batch_idx, (imgs, labels) in enumerate(t):
+                    imgs = imgs.to(device)
+                    preds = model(imgs)
+                    
+                    preds_, targets, preds_lengths, target_lengths = GetInputCTCLoss(preds, labels)
+                    loss = criterion(preds_.log_softmax(2), targets, preds_lengths, target_lengths) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
+                    total_loss += loss.detach().item()
+
+                    _, enc_preds = preds.max(2)
+                    sim_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
+                    levenshtein_loss += converter.Levenshtein_loss(sim_preds, labels)
+
+            # Display ----------------------------------------  
+            if True:
+                raw_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = True)
+                i = 5
+                for raw_pred, pred, gt in zip(raw_preds, sim_preds, labels):
+                    print('='*30)
+                    print(f'raw: {raw_pred}')
+                    print(f'pred_text: {pred}', )
+                    print(f'gt: {gt}')
+                    i -= 1
+                    if( i == 0): break
+
+            total_loss = total_loss
+            levenshtein_loss = levenshtein_loss/test_dataloader.sampler.num_samples
+
             print('--> Val: \t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(total_loss, levenshtein_loss))
         
         # Save --------------------------

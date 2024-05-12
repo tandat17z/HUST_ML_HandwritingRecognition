@@ -6,7 +6,10 @@ from utils.utils import *
 from tester import Tester
 
 class Trainer:
-    def __init__(self, model, optimizer, criterion, converter, train_dataset, batch_size):
+    def __init__(self, model, optimizer, criterion, converter, 
+                 train_dataset, 
+                 test_dataset,
+                 batch_size):
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
@@ -18,7 +21,11 @@ class Trainer:
                     train_dataset,
                     batch_size=self.batch_size,
                     shuffle=True)
-
+        self.test_dataloader = torch.utils.data.DataLoader(
+                    test_dataset,
+                    batch_size=self.batch_size,
+                    shuffle=True)
+    
     def train(self):
         self.model.train(True)
         # self.losses.reset()
