@@ -20,6 +20,7 @@ class Trainer:
                     shuffle=True)
 
     def train(self):
+        self.model.train(True)
         # self.losses.reset()
         # self.accs.reset()
         total_loss = 0
@@ -56,7 +57,7 @@ class Trainer:
             sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
 
-        total_loss = total_loss/self.train_dataloader.sampler.num_samples * self.batch_size
+        total_loss = total_loss
         levenshtein_loss = levenshtein_loss/self.train_dataloader.sampler.num_samples
 
         return total_loss, levenshtein_loss

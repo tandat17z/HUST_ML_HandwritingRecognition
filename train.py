@@ -16,6 +16,8 @@ parser.add_argument('--train', required=True, help='path to traindata folder')
 parser.add_argument('--test', required=True, help='path to traindata folder')
 parser.add_argument('--alphabet', type=str, default='data/mychar.txt', help='path to char in labels')
 
+parser.add_argument('--imgW', type=int, default=512, help='img width')
+
 parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
 parser.add_argument('--nepochs', type=int, default=100, help='number of epochs to train for')
 parser.add_argument('--manualSeed', type=int, default=1708, help='reproduce experiemnt')
@@ -23,10 +25,10 @@ parser.add_argument('--pretrained', default='', help="path to pretrained model (
 
 parser.add_argument('--num_hidden', type=int, default=200, help='size of the lstm hidden state')
 parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
-parser.add_argument('--lr', type=float, default=0.001, help='learning rate for Critic, not used by adadealta')
+parser.add_argument('--lr', type=float, default=0.0005, help='learning rate for Critic, not used by adadealta')
 
 parser.add_argument('--valInterval', type=int, default = 1, help='Interval to be displayed')
-parser.add_argument('--saveInterval', type=int, default = 1, help='Interval to be displayed')
+parser.add_argument('--saveInterval', type=int, default = 5, help='Interval to be displayed')
 opt = parser.parse_args()
 
 random.seed(opt.manualSeed)
@@ -40,8 +42,8 @@ if __name__ == '__main__':
     print("---------------------------------------------------")
 
     # --------------Tạo Dataset -------------------------------------------------------
-    train_dataset = DatasetImg(opt.train + '/img', opt.train + '/label')
-    test_dataset = DatasetImg(opt.test + '/img', opt.test + '/label')
+    train_dataset = DatasetImg(opt.train + '/img', opt.train + '/label', imgW=opt.imgW)
+    test_dataset = DatasetImg(opt.test + '/img', opt.test + '/label', imgW=opt.imgW)
 
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
@@ -81,13 +83,11 @@ if __name__ == '__main__':
     for epoch in range(start_epoch + 1, start_epoch + opt.nepochs + 1):
         print('Epoch: ', epoch)
         # Train -------------------------
-        model.train(True)
         total_loss, levenshtein_loss = trainer.train()
         print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
         
         # Val ---------------------------
         if epoch % opt.valInterval == 0: 
-            model.eval()
             total_loss, levenshtein_loss = tester.eval()
             print('--> Val: \t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(total_loss, levenshtein_loss))
         
