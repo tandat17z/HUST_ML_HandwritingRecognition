@@ -3,6 +3,7 @@ import torch
 import random
 import numpy as np
 import os
+from tqdm import tqdm
 
 from dataset_v2 import DatasetImg_v2
 from model.crnn import CRNN
@@ -10,7 +11,7 @@ from model.MyCrnn import MyCRNN
 from dataset import DatasetImg
 from utils.StrLabelConverter import *
 
-from trainer import *
+# from trainer import *
 
 parser = argparse.ArgumentParser()
 
@@ -20,6 +21,7 @@ parser.add_argument('--alphabet', type=str, default='data/mychar.txt', help='pat
 
 parser.add_argument('--imgW', type=int, default=512, help='img width')
 parser.add_argument('--dstype', type=str, default='v1', help='version of dataset')
+parser.add_argument('--model', type=str, default='MyCRNN', help='type of model')
 
 parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
 parser.add_argument('--nepochs', type=int, default=100, help='number of epochs to train for')
@@ -29,7 +31,7 @@ parser.add_argument('--savedir', default='checkpoint', help="path to savedir ")
 
 parser.add_argument('--num_hidden', type=int, default=200, help='size of the lstm hidden state')
 parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
-parser.add_argument('--lr', type=float, default=0.00005, help='learning rate for Critic, not used by adadealta')
+parser.add_argument('--lr', type=float, default=0.0005, help='learning rate')
 
 parser.add_argument('--valInterval', type=int, default = 5, help='Interval to be displayed')
 parser.add_argument('--saveInterval', type=int, default = 5, help='Interval to be displayed')
@@ -78,14 +80,15 @@ if __name__ == '__main__':
     
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
+
     converter = StrLabelConverter(alphabet)
     print('Num class: ', converter.numClass)
 
     # --------------------- Create Model ---------------------------------
-    model = MyCRNN(converter.numClass, opt.num_hidden, opt.dropout).to(device)
-    # print(f"Model structure: {model}\n\n")
-    # for name, param in model.named_parameters():
-    #     print(f"Layer: {name} | Size: {param.size()} | Values : {param[:2]} \n")
+    if opt.model == 'MyCRNN':
+        model = MyCRNN(converter.numClass, opt.num_hidden, opt.dropout).to(device)
+    elif opt.model == 'CRNN':
+        model = CRNN(converter.numClass, opt.num_hidden).to(device)
 
     criterion = torch.nn.CTCLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
@@ -138,6 +141,7 @@ if __name__ == '__main__':
             'avg_Loss': total_loss,
             'levenshtein_Loss': levenshtein_loss
         })
+
         # Val ---------------------------
         if epoch % opt.valInterval == 0: 
             print("Tester.eval...")
@@ -191,4 +195,4 @@ if __name__ == '__main__':
                 'optimizer_state_dict': optimizer.state_dict(),  # Lưu trạng thái của optimizer
                 'log': log
             }
-            torch.save(checkpoint, opt.savedir + f'/checkpoint-{epoch}.pth.tar')
+            torch.save(checkpoint, opt.savedir +'/' + opt.model +  f'/checkpoint-{epoch}.pth.tar')

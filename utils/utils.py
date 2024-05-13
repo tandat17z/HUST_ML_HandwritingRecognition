@@ -2,6 +2,20 @@ from PIL import Image
 import numpy as np
 from torchvision.transforms import ToTensor
 import os
+import torch
+
+
+def GetInputCTCLoss(converter, preds, labels):
+    b, l, c = preds.shape
+    preds_ = preds.permute(1, 0, 2).to('cpu')
+    preds_lengths = torch.full(size=(b,), fill_value=l, dtype=torch.long).to('cpu')
+
+    targets, target_lengths = converter.encode(labels)
+    targets = targets.to('cpu')
+    target_lengths = target_lengths.to('cpu')
+
+    return preds_, preds_lengths, targets, target_lengths
+
 
 def flist_reader(imgs, labels):
     imlist = []
