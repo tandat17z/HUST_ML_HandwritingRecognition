@@ -195,4 +195,8 @@ if __name__ == '__main__':
                 'optimizer_state_dict': optimizer.state_dict(),  # Lưu trạng thái của optimizer
                 'log': log
             }
-            torch.save(checkpoint, opt.savedir +'/' + opt.model +  f'/checkpoint-{epoch}.pth.tar')
+            directory = opt.savedir +'/' + opt.model
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+                print(f"Đã tạo thư mục '{directory}'.")
+            torch.save(checkpoint, directory +  f'/checkpoint-{epoch}.pth.tar')
