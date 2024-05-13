@@ -29,9 +29,9 @@ parser.add_argument('--savedir', default='checkpoint', help="path to savedir ")
 
 parser.add_argument('--num_hidden', type=int, default=200, help='size of the lstm hidden state')
 parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
-parser.add_argument('--lr', type=float, default=0.0005, help='learning rate for Critic, not used by adadealta')
+parser.add_argument('--lr', type=float, default=0.00005, help='learning rate for Critic, not used by adadealta')
 
-parser.add_argument('--valInterval', type=int, default = 1, help='Interval to be displayed')
+parser.add_argument('--valInterval', type=int, default = 5, help='Interval to be displayed')
 parser.add_argument('--saveInterval', type=int, default = 5, help='Interval to be displayed')
 opt = parser.parse_args()
 

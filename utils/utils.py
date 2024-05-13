@@ -27,7 +27,7 @@ def img_loader(path, imgH = 32, imgW = 512, scale = False,  alignment = 'left'):
     new_w = int(desired_h*ratio)
     if scale:
         new_w = int(new_w * scale)
-    new_w = new_w if desired_w == None else min(desired_w, new_w)
+    new_w = min(desired_w, new_w)
     img = img.resize((new_w, desired_h), Image.Resampling.LANCZOS)
 
     # padding image
