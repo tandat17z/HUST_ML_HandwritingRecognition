@@ -1,0 +1,1 @@
+Tại lần lặp i, tìm ptử nhỏ thứ i để đưa vào vị trí i.

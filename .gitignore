@@ -6,5 +6,5 @@ data/dataIAM/
 data/data2/
 pretrain/Crnn/
 data/data1/InkData_line_processed/
-data/
+data/data1/
 *.tar

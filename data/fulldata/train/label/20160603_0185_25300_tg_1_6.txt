@@ -1,0 +1,1 @@
+thực hiện phương thức quản lý tài nguyên nước.
