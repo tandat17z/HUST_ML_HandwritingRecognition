@@ -91,12 +91,14 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
 
     start_epoch = 0
+    log = list()
     if opt.pretrained:
         checkpoint_path = opt.pretrained
         checkpoint = torch.load(checkpoint_path, map_location=torch.device(device))
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         start_epoch = checkpoint['epoch']
+        log = checkpoint['log']
 
     # Training----------------------------------------------------------------------------------
     for epoch in range(start_epoch + 1, start_epoch + opt.nepochs + 1):
@@ -130,7 +132,12 @@ if __name__ == '__main__':
         total_loss = total_loss/train_dataloader.sampler.num_samples *opt.batch_size
         levenshtein_loss = levenshtein_loss/train_dataloader.sampler.num_samples 
         print('Epoch: [{}/{}]\t avg_Loss/batch = {:.4f} \t Levenshtein_Loss/sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
-        
+        log.append({
+            'type': 'train',
+            'epoch': epoch,
+            'avg_Loss': total_loss,
+            'levenshtein_Loss': levenshtein_loss
+        })
         # Val ---------------------------
         if epoch % opt.valInterval == 0: 
             print("Tester.eval...")
@@ -151,7 +158,6 @@ if __name__ == '__main__':
                     _, enc_preds = preds.max(2)
                     sim_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
                     levenshtein_loss += converter.Levenshtein_loss(sim_preds, labels)
-
             # Display ----------------------------------------  
             if True:
                 raw_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = True)
@@ -166,6 +172,12 @@ if __name__ == '__main__':
 
             total_loss = total_loss/test_dataloader.sampler.num_samples *opt.batch_size
             levenshtein_loss = levenshtein_loss/test_dataloader.sampler.num_samples
+            log.append({
+                'type': 'val',
+                'epoch': epoch,
+                'avg_Loss': total_loss,
+                'levenshtein_Loss': levenshtein_loss
+            })
 
             print('--> Val: \t avg_Loss/batch = {:.4f} \t Levenshtein_Loss/sentence = {:.2f}'.format(total_loss, levenshtein_loss))
         
@@ -177,5 +189,6 @@ if __name__ == '__main__':
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),  # Lưu trạng thái của mô hình
                 'optimizer_state_dict': optimizer.state_dict(),  # Lưu trạng thái của optimizer
+                'log': log
             }
             torch.save(checkpoint, opt.savedir + f'/checkpoint-{epoch}.pth.tar')
