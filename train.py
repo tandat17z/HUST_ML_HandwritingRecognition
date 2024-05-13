@@ -4,6 +4,7 @@ import random
 import numpy as np
 import os
 
+from dataset_v2 import DatasetImg_v2
 from model.crnn import CRNN
 from model.MyCrnn import MyCRNN
 from dataset import DatasetImg
@@ -12,16 +13,19 @@ from utils.StrLabelConverter import *
 from trainer import *
 
 parser = argparse.ArgumentParser()
+
 parser.add_argument('--train', required=True, help='path to traindata folder')
 parser.add_argument('--test', required=True, help='path to traindata folder')
 parser.add_argument('--alphabet', type=str, default='data/mychar.txt', help='path to char in labels')
 
 parser.add_argument('--imgW', type=int, default=512, help='img width')
+parser.add_argument('--dstype', type=str, default='v1', help='version of dataset')
 
 parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
 parser.add_argument('--nepochs', type=int, default=100, help='number of epochs to train for')
 parser.add_argument('--manualSeed', type=int, default=1708, help='reproduce experiemnt')
 parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
+parser.add_argument('--savedir', default='checkpoint', help="path to savedir ")
 
 parser.add_argument('--num_hidden', type=int, default=200, help='size of the lstm hidden state')
 parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
@@ -53,8 +57,15 @@ if __name__ == '__main__':
     print("---------------------------------------------------")
 
     # --------------Tạo Dataset -------------------------------------------------------
-    train_dataset = DatasetImg(opt.train + '/img', opt.train + '/label', imgW=opt.imgW)
-    test_dataset = DatasetImg(opt.test + '/img', opt.test + '/label', imgW=opt.imgW)
+
+    if opt.dstype == 'v1':
+        print('Sử dụng dataset_v1')
+        train_dataset = DatasetImg(opt.train + '/img', opt.train + '/label', imgW=opt.imgW)
+        test_dataset = DatasetImg(opt.test + '/img', opt.test + '/label', imgW=opt.imgW)
+    elif opt.dstype == 'v2':
+        print('Sử dụng dataset_v2')
+        train_dataset = DatasetImg_v2(opt.train + '/img', opt.train + '/label')
+        test_dataset = DatasetImg_v2(opt.test + '/img', opt.test + '/label')
 
     train_dataloader = torch.utils.data.DataLoader(
                     train_dataset,
@@ -116,9 +127,9 @@ if __name__ == '__main__':
             sim_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             levenshtein_loss += converter.Levenshtein_loss(sim_preds, labels)
 
-        total_loss = total_loss
+        total_loss = total_loss/train_dataloader.sampler.num_samples *opt.batch_size
         levenshtein_loss = levenshtein_loss/train_dataloader.sampler.num_samples 
-        print('Epoch: [{}/{}]\t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
+        print('Epoch: [{}/{}]\t avg_Loss/batch = {:.4f} \t Levenshtein_Loss/sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
         
         # Val ---------------------------
         if epoch % opt.valInterval == 0: 
@@ -153,10 +164,10 @@ if __name__ == '__main__':
                     i -= 1
                     if( i == 0): break
 
-            total_loss = total_loss
+            total_loss = total_loss/test_dataloader.sampler.num_samples *opt.batch_size
             levenshtein_loss = levenshtein_loss/test_dataloader.sampler.num_samples
 
-            print('--> Val: \t avg_Loss = {:.4f} \t Levenshtein Loss per 1 sentence = {:.2f}'.format(total_loss, levenshtein_loss))
+            print('--> Val: \t avg_Loss/batch = {:.4f} \t Levenshtein_Loss/sentence = {:.2f}'.format(total_loss, levenshtein_loss))
         
         # Save --------------------------
         if epoch % opt.saveInterval == 0:
@@ -167,4 +178,4 @@ if __name__ == '__main__':
                 'model_state_dict': model.state_dict(),  # Lưu trạng thái của mô hình
                 'optimizer_state_dict': optimizer.state_dict(),  # Lưu trạng thái của optimizer
             }
-            torch.save(checkpoint, f'checkpoint/checkpoint-{epoch}.pth.tar')
+            torch.save(checkpoint, opt.savedir + f'/checkpoint-{epoch}.pth.tar')
