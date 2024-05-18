@@ -129,8 +129,8 @@ class Trainer:
                 sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
                 avg_levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
         
-        avg_loss = avg_loss/self.dataloader.sampler.num_samples * self.opt.batch_size
-        avg_levenshtein_loss = avg_levenshtein_loss/self.dataloader.sampler.num_samples
+        avg_loss = avg_loss/self.test_dataloader.sampler.num_samples * self.opt.batch_size
+        avg_levenshtein_loss = avg_levenshtein_loss/self.test_dataloader.sampler.num_samples
 
         # Display ----------------------------------------  
         if print_:
