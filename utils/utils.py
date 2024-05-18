@@ -28,10 +28,10 @@ def flist_reader(imgs, labels):
                                     
     return imlist
 
-def img_loader(path, imgH = 32, imgW = 512, scale = False,  alignment = 'left'):
+def img_loader(path, imgH = 32, imgW = 512, scale = False,  alignment = 'left', threshold = 40):
     img = Image.open(path).convert('L')
-    img = img.point(lambda p: 255 - p) # chuyển background về màu đen 0
-
+    img = img.point(lambda p: 255 - p if 255 - p >= threshold else 0) # chuyển background về màu đen 0
+    
     img = cropImg(img)
 
     # Resize hình ảnh + thêm padding (nếu cần)
@@ -47,6 +47,7 @@ def img_loader(path, imgH = 32, imgW = 512, scale = False,  alignment = 'left'):
     # padding image
     if desired_w != None and desired_w > new_w:
         new_img = Image.new("L", (desired_w, desired_h), color=0)
+        
         if alignment == 'left':
             new_img.paste(img, (0, 0))
         elif alignment == 'center':
@@ -68,6 +69,7 @@ def target_loader(path):
 def cropImg(img):
     # Cắt bỏ khoảng trống bị thừa xung quanh
     img_array = np.array(img)
+
     non_empty_columns = np.where(img_array.max(axis=0) > 0)[0]
     non_empty_rows = np.where(img_array.max(axis=1) > 0)[0]
     cropped_img = img_array[min(non_empty_rows):max(non_empty_rows) + 1,
