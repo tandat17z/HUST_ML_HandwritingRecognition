@@ -63,7 +63,7 @@ def img_loader(path, imgH = 32, imgW = 512, scale = False,  alignment = 'left', 
     
 def target_loader(path):
     with open(path, 'r', encoding='utf-8') as f:
-        label = f.read().rstrip('\n')
+        label = f.readline().rstrip('\n')
     return label.strip()
 
 def cropImg(img):
