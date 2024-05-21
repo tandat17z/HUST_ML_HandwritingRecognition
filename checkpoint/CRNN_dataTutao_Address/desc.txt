@@ -1,0 +1,3 @@
+- CRNN_withVgg
+- dataset_v2: imgW = 800
+- data tự tạo và data address
