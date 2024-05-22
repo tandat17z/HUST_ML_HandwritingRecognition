@@ -2,10 +2,10 @@ import torch
 from utils import utils
 
 class DatasetImg_v2(torch.utils.data.Dataset):
-    def __init__(self, imgFolder, labelFolder, imgH = 32, imgW = 800, scale = 1):
+    def __init__(self, imgFolder, labelFolder, imgH = 32, imgW = 800, threshold = 75):
         self.imgH = imgH
         self.imgW = imgW
-        self.scale = scale
+        self.threshold = threshold
         self.imlist = utils.flist_reader(imgFolder, labelFolder)
 
     def __getitem__(self, index):
@@ -13,11 +13,11 @@ class DatasetImg_v2(torch.utils.data.Dataset):
         imgpath, imglabel = self.imlist[idx]
 
         if index < len(self.imlist):
-            img = utils.img_loader(imgpath, self.imgH, self.imgW, self.scale, alignment='left')
+            img = utils.img_loader(imgpath, self.imgH, self.imgW, alignment='left', threshold=self.threshold)
         elif index < 2*len(self.imlist):
-            img = utils.img_loader(imgpath, self.imgH, self.imgW, self.scale, alignment='center')
+            img = utils.img_loader(imgpath, self.imgH, self.imgW, alignment='center', threshold=self.threshold)
         else:
-            img = utils.img_loader(imgpath, self.imgH, self.imgW, self.scale, alignment='right')
+            img = utils.img_loader(imgpath, self.imgH, self.imgW, alignment='right', threshold=self.threshold)
         
         target = utils.target_loader(imglabel)
         return img, target

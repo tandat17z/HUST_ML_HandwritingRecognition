@@ -28,7 +28,7 @@ def flist_reader(imgs, labels):
                                     
     return imlist
 
-def img_loader(path, imgH = 32, imgW = 512, scale = False,  alignment = 'left', threshold = 40):
+def img_loader(path, imgH = 32, imgW = 800,  alignment = 'left', threshold = 75):
     img = Image.open(path).convert('L')
     img = img.point(lambda p: 255 - p if 255 - p >= threshold else 0) # chuyển background về màu đen 0
     
@@ -39,8 +39,6 @@ def img_loader(path, imgH = 32, imgW = 512, scale = False,  alignment = 'left', 
     img_w, img_h = img.size  # old_size[0] is in (width, height) format
     ratio = 1.0*img_w/img_h
     new_w = int(desired_h*ratio)
-    if scale:
-        new_w = int(new_w * scale)
     new_w = min(desired_w, new_w)
     img = img.resize((new_w, desired_h), Image.Resampling.LANCZOS)
 

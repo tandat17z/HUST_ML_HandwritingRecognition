@@ -29,6 +29,7 @@ class Trainer:
 
     def load_pretrained(self, path):
         checkpoint = torch.load(path, map_location=torch.device(self.device))
+        print( checkpoint['desc'])
 
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -68,9 +69,10 @@ class Trainer:
                     'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),  # Lưu trạng thái của mô hình
                     'optimizer_state_dict': self.optimizer.state_dict(),  # Lưu trạng thái của optimizer
-                    'log': self.log
+                    'log': self.log,
+                    'desc': self.opt.desc
                 }
-                directory = self.opt.savedir +'/' + self.opt.model
+                directory = self.opt.savedir 
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                     print(f"Đã tạo thư mục '{directory}'.")
@@ -83,11 +85,12 @@ class Trainer:
         avg_levenshtein_loss = 0
 
         t = tqdm(iter(self.train_dataloader), total=len(self.train_dataloader))
-        for batch_idx, (imgs, labels) in enumerate(t):
+        for _, (imgs, labels) in enumerate(t):
             imgs = imgs.to(self.device)
+
             self.optimizer.zero_grad()
             preds = self.model(imgs)
-            print(preds)
+            
             # Compute Loss -------------------------------------------
             preds_, preds_lengths, targets, target_lengths = GetInputCTCLoss(self.converter, preds, labels)
             loss = self.criterion(preds_.log_softmax(2), targets, preds_lengths, target_lengths) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
@@ -103,7 +106,7 @@ class Trainer:
             _, enc_preds = preds.max(2)
             sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             avg_levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
-            print(sim_preds)
+     
         avg_loss = avg_loss/self.train_dataloader.sampler.num_samples*self.opt.batch_size
         avg_levenshtein_loss = avg_levenshtein_loss/self.train_dataloader.sampler.num_samples
 
@@ -128,7 +131,7 @@ class Trainer:
                 _, enc_preds = preds.max(2)
                 sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
                 avg_levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
-                print(sim_preds)
+
         avg_loss = avg_loss/self.test_dataloader.sampler.num_samples * self.opt.batch_size
         avg_levenshtein_loss = avg_levenshtein_loss/self.test_dataloader.sampler.num_samples
 
