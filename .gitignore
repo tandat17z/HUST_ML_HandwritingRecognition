@@ -8,3 +8,4 @@ pretrain/Crnn/
 data/data1/InkData_line_processed/
 data/data1/
 *.tar
+checkpoint/
