@@ -10,7 +10,7 @@ class DatasetImg(torch.utils.data.Dataset):
     def __getitem__(self, index):
         imgpath, imglabel = self.imlist[index]
 
-        img = utils.img_loader(imgpath, self.imgH, self.imgW)
+        img = utils.img_loader(imgpath, self.imgH, self.imgW, threshold = 0)
         target = utils.target_loader(imglabel)
 
         return img, target

@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--root', required=True, help='path to root')
 parser.add_argument('--alphabet', type=str, default='data/char_v2.txt', help='path to char in labels')
+parser.add_argument('--dstype', type=str, default='v2', help='dataset type')
 
 parser.add_argument('--desc', type=str, default=' ', help='model name')
 parser.add_argument('--imgW', type=int, default=800, help='img width')
@@ -47,9 +48,14 @@ if __name__ == '__main__':
     print("---------------------------------------------------")
 
     # --------------Tạo Dataset -------------------------------------------------------
-    print('Sử dụng dataset_v2')
-    train_dataset = DatasetImg_v2(opt.root + '/train/img', opt.root + '/train/label', imgW=opt.imgW, threshold=opt.threshold)
-    test_dataset = DatasetImg_v2(opt.root + '/test/img', opt.root + '/test/label', imgW=opt.imgW, threshold=opt.threshold)
+    if opt.dstype == 'v1':
+        print('Sử dụng dataset_v1')
+        train_dataset = DatasetImg(opt.root + '/train/img', opt.root + '/train/label', imgW=opt.imgW)
+        test_dataset = DatasetImg(opt.root + '/test/img', opt.root + '/test/label', imgW=opt.imgW)
+    elif opt.dstype == 'v2':
+        print('Sử dụng dataset_v2')
+        train_dataset = DatasetImg_v2(opt.root + '/train/img', opt.root + '/train/label', imgW=opt.imgW, threshold=opt.threshold)
+        test_dataset = DatasetImg_v2(opt.root + '/test/img', opt.root + '/test/label', imgW=opt.imgW, threshold=opt.threshold)
 
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
