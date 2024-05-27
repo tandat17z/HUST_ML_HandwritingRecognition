@@ -39,7 +39,7 @@ class Trainer:
     def train(self, nepochs):
         for epoch in range(self.start_epoch + 1, self.start_epoch + nepochs + 1):
             # Train -----------------------
-            print(f'Epoch: {epoch}/{self.start_epoch + nepochs}', end=' ')
+            print(f'Epoch: {epoch}/{self.start_epoch + nepochs}')
             avg_loss, avg_levenshtein_loss = self.epoch_train()
             print('-->>> avg_loss/batch = {:.4f} \t avg_levenshtein_loss/sentence = {:.2f}'.format(avg_loss, avg_levenshtein_loss))
             self.log.append({
