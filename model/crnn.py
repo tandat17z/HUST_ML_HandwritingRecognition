@@ -5,7 +5,7 @@ from model.modules import *
 
 class CRNN(nn.Module):
 
-    def __init__(self, num_class, hidden_size, input_channel = 1, output_channel = 512):
+    def __init__(self, num_class, hidden_size, input_channel = 3, output_channel = 512):
         super(CRNN, self).__init__()
         print('>>>> use CRNN-------------\n')
 
