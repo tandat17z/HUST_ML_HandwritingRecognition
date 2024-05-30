@@ -2,7 +2,7 @@ import torch
 from utils import utils
 
 class DatasetImg_v2(torch.utils.data.Dataset):
-    def __init__(self, imgFolder, labelFolder, imgH = 32, imgW = 800, threshold = 75):
+    def __init__(self, imgFolder, labelFolder, imgH = 32, imgW = 800, threshold = 0):
         self.imgH = imgH
         self.imgW = imgW
         self.threshold = threshold
