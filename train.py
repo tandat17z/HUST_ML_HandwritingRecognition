@@ -107,7 +107,7 @@ if __name__ == '__main__':
     for epoch in range(start_epoch + 1, start_epoch + opt.nepochs + 1):
         print('Epoch: ', epoch)
         # Train -------------------------
-        model.train(True)
+        model.train(True) 
         total_loss = 0
         levenshtein_loss = 0
 
@@ -132,7 +132,7 @@ if __name__ == '__main__':
             sim_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             levenshtein_loss += converter.Levenshtein_loss(sim_preds, labels)
 
-        total_loss = total_loss/train_dataloader.sampler.num_samples *opt.batch_size
+        total_loss = total_loss/train_dataloader.sampler.num_samples * opt.batch_size
         levenshtein_loss = levenshtein_loss/train_dataloader.sampler.num_samples 
         print('Epoch: [{}/{}]\t avg_Loss/batch = {:.4f} \t Levenshtein_Loss/sentence = {:.2f}'.format(epoch, start_epoch + opt.nepochs, total_loss, levenshtein_loss))
         log.append({
@@ -162,6 +162,7 @@ if __name__ == '__main__':
                     _, enc_preds = preds.max(2)
                     sim_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
                     levenshtein_loss += converter.Levenshtein_loss(sim_preds, labels)
+        
             # Display ----------------------------------------  
             if True:
                 raw_preds = converter.decode(enc_preds.view(-1), preds_lengths, raw = True)
