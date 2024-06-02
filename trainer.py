@@ -2,7 +2,8 @@ import torch
 from tqdm import tqdm
 from torch.utils.data import random_split
 
-from utils.utils import *
+from tools.utils import *
+from evalMetrics import EvalMetrics
 
 class Trainer:
     def __init__(self, model, optimizer, criterion, converter, opt,
@@ -20,6 +21,7 @@ class Trainer:
                     train_dataset,
                     batch_size=self.opt.batch_size,
                     shuffle=True)
+        
         self.test_dataloader = torch.utils.data.DataLoader(
                     test_dataset,
                     batch_size=self.opt.batch_size,
@@ -39,26 +41,32 @@ class Trainer:
     def train(self, nepochs):
         for epoch in range(self.start_epoch + 1, self.start_epoch + nepochs + 1):
             # Train -----------------------
-            print(f'Epoch: {epoch}/{self.start_epoch + nepochs}')
-            avg_loss, avg_levenshtein_loss = self.epoch_train()
-            print('-->>> avg_loss/batch = {:.4f} \t avg_levenshtein_loss/sentence = {:.2f}'.format(avg_loss, avg_levenshtein_loss))
+            avg_loss, avg_cer, avg_wer = self.epoch_train()
+            print(f'Epoch: {epoch}/{self.start_epoch + nepochs}', end=" ")
+            print('-->>> avg_loss = {:.4f} \t avg_cer = {:.2f} \t avg_wer = {:.2f}'.format(avg_loss,  avg_cer, avg_wer))
             self.log.append({
                 'type': 'train',
                 'epoch': epoch,
-                'avg_Loss': avg_loss,
-                'levenshtein_Loss': avg_levenshtein_loss
+                'metric': {
+                    'avg_loss': avg_loss,
+                    'avg_cer': avg_cer,
+                    'avg_wer': avg_wer
+                }
             })
 
             # val ------------------------------
             if epoch % self.opt.valInterval == 0: 
-                print(f"Tester.eval... {epoch}")
-                avg_loss, avg_levenshtein_loss = self.epoch_eval()
-                print('----->>> avg_loss/batch = {:.4f} \t avg_levenshtein_loss/sentence = {:.2f}'.format(avg_loss, avg_levenshtein_loss))
+                avg_loss,  avg_cer, avg_wer = self.epoch_eval()
+                print(f"Tester.eval... {epoch}", end=" ")
+                print('-->>> avg_loss = {:.4f} \t avg_cer = {:.2f} \t avg_wer = {:.2f}'.format(avg_loss,  avg_cer, avg_wer))
                 self.log.append({
                     'type': 'val',
                     'epoch': epoch,
-                    'avg_Loss': avg_loss,
-                    'levenshtein_Loss': avg_levenshtein_loss
+                    'metric': {
+                        'avg_loss': avg_loss,
+                        'avg_cer': avg_cer,
+                        'avg_wer': avg_wer
+                    }
                 })
 
             # Save --------------------------
@@ -69,9 +77,9 @@ class Trainer:
                     'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),  # Lưu trạng thái của mô hình
                     'optimizer_state_dict': self.optimizer.state_dict(),  # Lưu trạng thái của optimizer
-                    'log': self.log,
-                    'desc': self.opt.desc
+                    'log': self.log
                 }
+
                 directory = self.opt.savedir 
                 if not os.path.exists(directory):
                     os.makedirs(directory)
@@ -82,7 +90,7 @@ class Trainer:
     def epoch_train(self):
         self.model.train(True)
         avg_loss = 0
-        avg_levenshtein_loss = 0
+        evalMetrics = EvalMetrics()
 
         t = tqdm(iter(self.train_dataloader), total=len(self.train_dataloader))
         for _, (imgs, labels) in enumerate(t):
@@ -102,22 +110,25 @@ class Trainer:
             self.optimizer.step()
 
             avg_loss += loss.detach().item()
-            print(loss.detach().item())
-            _, enc_preds = preds.max(2)
-            sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
-            avg_levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
-     
-        avg_loss = avg_loss/self.train_dataloader.sampler.num_samples*self.opt.batch_size
-        avg_levenshtein_loss = avg_levenshtein_loss/self.train_dataloader.sampler.num_samples
 
-        return avg_loss, avg_levenshtein_loss
+            _, enc_preds = preds.max(2)
+            # print(preds.shape)
+            sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
+            # print(len(sim_preds), len(labels))
+            # break
+            evalMetrics.add(sim_preds, labels)
+     
+        avg_loss = avg_loss/len(self.train_dataloader)
+        avg_cer, avg_wer = evalMetrics.eval()
+
+        return avg_loss,  avg_cer, avg_wer
     
     def epoch_eval(self, print_ = True):
         self.model.eval()
-        with torch.no_grad():
-            avg_loss = 0
-            avg_levenshtein_loss = 0
+        avg_loss = 0
+        evalMetrics = EvalMetrics()
 
+        with torch.no_grad():
             t = tqdm(iter(self.test_dataloader), total=len(self.test_dataloader))
             for batch_idx, (imgs, labels) in enumerate(t):
                 imgs = imgs.to(self.device)
@@ -127,13 +138,13 @@ class Trainer:
                 preds_, preds_lengths, targets, target_lengths = GetInputCTCLoss(self.converter, preds, labels)
                 loss = self.criterion(preds_.log_softmax(2), targets, preds_lengths, target_lengths) # ctc_loss chỉ dùng với cpu, dùng với gpu phức tạp hơn thì phải
                 avg_loss += loss.detach().item()
-                print(loss.detach().item())
+                
                 _, enc_preds = preds.max(2)
                 sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
-                avg_levenshtein_loss += self.converter.Levenshtein_loss(sim_preds, labels)
+                evalMetrics.add(sim_preds, labels)
 
-        avg_loss = avg_loss/self.test_dataloader.sampler.num_samples * self.opt.batch_size
-        avg_levenshtein_loss = avg_levenshtein_loss/self.test_dataloader.sampler.num_samples
+        avg_loss = avg_loss/len(self.test_dataloader)
+        avg_cer, avg_wer = evalMetrics.eval()
 
         # Display ----------------------------------------  
         if print_:
@@ -147,4 +158,4 @@ class Trainer:
                 i -= 1
                 if( i == 0): break
 
-        return avg_loss, avg_levenshtein_loss
+        return avg_loss, avg_cer, avg_wer
