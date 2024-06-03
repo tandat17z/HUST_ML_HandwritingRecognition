@@ -22,7 +22,7 @@ parser.add_argument('--alphabet', type=str, default='data/alphabet.txt', help='p
 parser.add_argument('--imgW', type=int, default=768, help='img width')
 parser.add_argument('--threshold', type=int, default=30, help='threshold')
 parser.add_argument('--num_hidden', type=int, default=128, help='size of the lstm hidden state')
-parser.add_argument('--dropout', type=int, default=0.1, help='dropout')
+parser.add_argument('--dropout', type=float, default=0.1, help='dropout')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 
 parser.add_argument('--savedir', type=str, required = True, help="path to savedir ")
