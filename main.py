@@ -15,7 +15,8 @@ from trainer import *
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--root', required=True, help='path to root')
+parser.add_argument('--dstrain', required=True, help='path to train')
+parser.add_argument('--dsval', required=True, help='path to val')
 parser.add_argument('--alphabet', type=str, default='data/alphabet.txt', help='path to char in labels')
 
 parser.add_argument('--imgW', type=int, default=768, help='img width')
@@ -26,13 +27,13 @@ parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 
 parser.add_argument('--savedir', type=str, required = True, help="path to savedir ")
 
-parser.add_argument('--batch_size', type=int, default=16, help='input batch size')
+parser.add_argument('--batch_size', type=int, default=32, help='input batch size')
 parser.add_argument('--nepochs', type=int, default=100, help='number of epochs to train for')
 parser.add_argument('--manualSeed', type=int, default=1708, help='reproduce experiemnt')
 parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
 
 parser.add_argument('--valInterval', type=int, default = 1, help='Interval to be displayed')
-parser.add_argument('--saveInterval', type=int, default = 1, help='Interval to be displayed')
+parser.add_argument('--saveInterval', type=int, default = 1, help='Interval to be saved')
 opt = parser.parse_args()
 
 random.seed(opt.manualSeed)
@@ -47,8 +48,8 @@ if __name__ == '__main__':
 
     # --------------Tạo Dataset -------------------------------------------------------
     
-    train_dataset = DatasetImg(opt.root + '/train/img', opt.root + '/train/label', imgW=opt.imgW, threshold=opt.threshold)
-    test_dataset = DatasetImg(opt.root + '/test/img', opt.root + '/test/label', imgW=opt.imgW, threshold=opt.threshold)
+    train_dataset = DatasetImg(opt.dstrain + '/img', opt.dstrain + '/label', imgW=opt.imgW, threshold=opt.threshold)
+    val_dataset = DatasetImg(opt.dsval + '/img', opt.dsval + '/label', imgW=opt.imgW, threshold=opt.threshold)
 
     with open(os.path.join(opt.alphabet), 'r', encoding='utf-8') as f:
         alphabet = f.read().rstrip()
@@ -57,13 +58,13 @@ if __name__ == '__main__':
     print('Num class: ', converter.numClass)
 
     # --------------------- Create Model ---------------------------------
-    model = CRNN(converter.numClass, opt.num_hidden).to(device)
+    model = CRNN(converter.numClass, opt.num_hidden, opt.dropout).to(device)
     criterion = torch.nn.CTCLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
 
     trainer = Trainer(model, optimizer, criterion, converter, opt,
                       train_dataset,
-                      test_dataset)
+                      val_dataset)
     
     if opt.pretrained : trainer.load_pretrained(opt.pretrained)
     
