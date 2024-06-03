@@ -112,10 +112,13 @@ class Trainer:
             avg_loss += loss.detach().item()
 
             _, enc_preds = preds.max(2)
+            
             # print(preds.shape)
             sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             # print(len(sim_preds), len(labels))
             # break
+            if( sim_preds == ''):
+              sim_preds = ['',]
             evalMetrics.add(sim_preds, labels)
      
         avg_loss = avg_loss/len(self.train_dataloader)
