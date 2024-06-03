@@ -117,8 +117,8 @@ class Trainer:
             sim_preds = self.converter.decode(enc_preds.view(-1), preds_lengths, raw = False)
             # print(len(sim_preds), len(labels))
             # break
-            if( sim_preds == ''):
-              sim_preds = ['',]
+            if( isinstance(sim_preds, str)):
+              sim_preds = [sim_preds,]
             evalMetrics.add(sim_preds, labels)
      
         avg_loss = avg_loss/len(self.train_dataloader)
