@@ -19,7 +19,7 @@ class EvalMetrics:
             l2 = max(len(sent_pred.split()), len(sent_label.split()))
             self.cer += c_cost/l1 if l1 != 0 else 1
             self.wer += w_cost/l2 if l2 != 0 else 1
-            print(self.cer, self.wer)
+            # print(self.cer, self.wer)
 
     def eval(self):
         return self.cer/self.num, self.wer/self.num

@@ -1,6 +1,6 @@
 from tqdm import tqdm
 import torch
-from utils import utils
+from tools import utils
 
 class Tester:
     def __init__(self, model, criterion, converter):
@@ -19,7 +19,7 @@ class Tester:
     def predict(self, imgpath):
         self.model.eval()
         # img = utils.img_loader(imgpath, imgW = 800, scale=1.5)
-        img = utils.img_loader(imgpath, imgW = 768, threshold=0)
+        img = utils.img_loader(imgpath, imgW = 768, threshold=30)
         input = img.unsqueeze(0).to(self.device)
 
         pred = self.model(input)
