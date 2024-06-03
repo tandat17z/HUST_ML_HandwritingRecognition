@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 
 from dataset import DatasetImg
-from model.CRNN import CRNN
+from model.crnn import CRNN
 
 from dataset import DatasetImg
 from tools.StrLabelConverter import *
