@@ -20,7 +20,7 @@ class Tester:
     def predict(self, imgpath):
         self.model.eval()
         # img = utils.img_loader(imgpath, imgW = 800, scale=1.5)
-        img = utils.img_loader(imgpath, imgW = self.config.imgW, threshold=self.config.threshold)
+        img = utils.img_loader(imgpath, imgW = self.config['imgW'], threshold=self.config['threshold'])
         input = img.unsqueeze(0).to(self.device)
 
         pred = self.model(input)
