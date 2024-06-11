@@ -33,7 +33,7 @@
   - **img** là tập các file hình ảnh về chữ viết tay (trên 1 dòng)
   - **label** là tập các file txt chứa nội dung về hình ảnh tương ứng.
 (các file trong img và label tương ứng cần có tên giống nhau)
-- Tham khảo: [train_data](https://github.com/tandat17z/HUST_ML_HandwritingRecognition/data/train)
+- Tham khảo: [train_data](https://github.com/tandat17z/HUST_ML_HandwritingRecognition/tree/branch2/data/train)
 ## :anchor: Training:
     ```bash
     python main.py --dstrain {train_folder} --dsval {val_folder} --savedir {save_folder} --nepochs {num} 
