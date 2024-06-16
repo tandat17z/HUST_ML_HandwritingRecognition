@@ -13,13 +13,13 @@
 ## :gear: Cài đặt
 (Đảm bảo rằng bạn đã thiết lập môi trường để chạy python và git)
 
-- Clone từ GitHub:
+- Clone từ GitHub: (bản cuối cùng ở branch2)
     ```bash
-    git clone https://github.com/tandat17z/HUST_IntroToSoftwareEngineering_BKvivu.git
+    git clone https://github.com/tandat17z/HUST_ML_HandwritingRecognition.git
     ```
 - Tới thư mục làm việc của project. Ví dụ:
     ```bash
-    cd D:\HUST_IntroToSoftwareEngineering_BKvivu
+    cd D:\HUST_ML_HandwritingRecognition
     ```
 - Install các thư viện cần trong project:
     ```bash
